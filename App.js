@@ -3,79 +3,26 @@ import { StyleSheet, Text, View, Button, Alert, Modal , TextInput } from 'react-
 import React, { useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push } from "firebase/database";
+import firebaseConfig from "./firebase.config";
+import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited} from "./database";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC-RiwBX8Si5IKxjIt7GgVTy7TNxf-hq4E",
-  authDomain: "human-movement-mapping.firebaseapp.com",
-  databaseURL: "https://human-movement-mapping-default-rtdb.firebaseio.com",
-  projectId: "human-movement-mapping",
-  storageBucket: "human-movement-mapping.appspot.com",
-  messagingSenderId: "262748753205",
-  appId: "1:262748753205:web:22aff0982462db9ccb907c",
-  measurementId: "G-QB5JMW811H"
-};
-
-const fire = initializeApp(firebaseConfig);
-
-function writeUserData(UserId, name, email, imageUrl) {
-  const db = getDatabase();
-  set(ref(db, 'users/' + UserId + "/location"), {
-    username: name,
-    email: email,
-    profile_picture: imageUrl
-  });
-};
+const fire = initializeApp(firebaseConfig); //Initialises the database
 
 
-
-//This function stores the name of the location visited, as well as its GPS coordinates and the time of the visit
-function writeLocationData(UserId, location_name, coordinates) {
-  const db = getDatabase();
-  const current_time = Date();
-
-  const reference = ref(db, 'users/' + UserId + '/locations_visited'); //Specifies the parent node
-  const pushReference = push(reference); //This will generate a unique key based on the timestamp, meaning the locations will be ordered in the order they are visited
-
-  set(pushReference, {
-    location_name: location_name,
-    coordinates: coordinates,
-    time: current_time
-  });
-};
-
-//This function will store the coordinates of the user, as well as the current time. This should be called when recording the users position.
-function writePositionData(UserId, coordinates) {
-  const db = getDatabase();
-  const current_time = Date();
-
-  const reference = ref(db, 'users/' + UserId + '/position_data') //Specifies the parent node
-  const pushReference = push(reference); //This will generate a unique key based on the timestamp, meaning the locations will be ordered in the order they are visited
-
-  set (pushReference, {
-    coordinate: coordinates,
-    time: current_time
-  });
-};
-
-//This is an event listener which logs the whole set of nodes of locations visited, and its children.
-//THIS IS CURRENTLY WHERE I AM UP TO
-const UserId = 'user01';
+///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
+const UserId = 'user04'; 
 const db = getDatabase();
+///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
+
+
+//This adds an event listener to the locations visited by the user. This runs once when the app starts, and then any time a new location is visited.
 const locationRef = ref(db, 'users/' + UserId + '/locations_visited/');
-const visited_locations = [];
 onValue(locationRef, (snapshot) => {
-  const data = snapshot.val();
-  const props2 = Object.getOwnPropertyNames(data);
-  if (Array.isArray(props2)){
-    for (let i = 0; i < props2.length; i++){
-      visited_locations.push(data[props2[i]].location_name);
-    };
-    }else {
-      console.log(data[props2].location_name);
-      console.log("WEWEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-    }
-  console.log(visited_locations);
+  const visited_locations = listOfLocationsVisited(snapshot); //Returns an array of the names of the locations visited
+  console.log(visited_locations); //A function to display the visited locations to the user should go here, and replace the logging.
 });
+
+
 
 const App = () => {
 
@@ -116,8 +63,8 @@ const App = () => {
       <Text>Welcome to the Human Movement Mapping Project App!</Text>
       <Text></Text>
       <Button title = "Send Data!" onPress={ () => {writeUserData("user01", "Cam", "fake@fake.com", "google.com")}}></Button>
-      <Button title = "Send Location Data!" onPress={ () => {writeLocationData("user01", "Home", 10)}}></Button>
-      <Button title = "Send Position Data!" onPress={ () => {writePositionData("user01", 1000)}}></Button>
+      <Button title = "Send Location Data!" onPress={ () => {writeLocationData("user04", "Gym", 10)}}></Button>
+      <Button title = "Send Position Data!" onPress={ () => {writePositionData("user04", 1000)}}></Button>
       <StatusBar style="auto" />
     </View>
   );
