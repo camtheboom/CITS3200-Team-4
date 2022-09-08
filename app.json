@@ -1,5 +1,8 @@
 {
   "expo": {
+    "packagerOpts": {
+      "sourceExts": ["cjs"]
+    },
     "name": "HMM",
     "slug": "HMM",
     "version": "1.0.0",
