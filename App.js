@@ -6,13 +6,15 @@ import { getDatabase, ref, onValue, set, push } from "firebase/database";
 import firebaseConfig from "./firebase.config";
 import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData} from "./database";
 
-const fire = initializeApp(firebaseConfig); //Initialises the database
 
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
+const fire = initializeApp(firebaseConfig); //Initialises the database
 const UserId = 'user07'; 
 const db = getDatabase();
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
+
+
 
 //This function returns the last X visited locations, where X is the number_of_locations.
 function getLastLocationsVisited(visited_locations, number_of_locations){
