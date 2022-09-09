@@ -1,27 +1,39 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert, Modal , TextInput } from 'react-native';
+import { FlatList, StyleSheet, Text, View, Button, Alert, Modal , TextInput, ScrollView } from 'react-native';
 import React, { useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push } from "firebase/database";
 import firebaseConfig from "./firebase.config";
-import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited} from "./database";
+import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData} from "./database";
 
 const fire = initializeApp(firebaseConfig); //Initialises the database
 
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
-const UserId = 'user04'; 
+const UserId = 'user07'; 
 const db = getDatabase();
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 
+//This function returns the last X visited locations, where X is the number_of_locations.
+function getLastLocationsVisited(visited_locations, number_of_locations){
+  if(number_of_locations > visited_locations.length){
+    return(visited_locations);
+  } else {
+    const index = -1*number_of_locations;
+    const last_locations = visited_locations.slice(index);
+    return(last_locations);
+  }
+};
 
 //This adds an event listener to the locations visited by the user. This runs once when the app starts, and then any time a new location is visited.
 const locationRef = ref(db, 'users/' + UserId + '/locations_visited/');
 onValue(locationRef, (snapshot) => {
-  const visited_locations = listOfLocationsVisited(snapshot); //Returns an array of the names of the locations visited
-  console.log(visited_locations); //A function to display the visited locations to the user should go here, and replace the logging.
-});
+  var visited_locations = listOfLocationsVisited(snapshot); //Returns an array of the names of the locations visited
+  var last_10_locations = getLastLocationsVisited(visited_locations, 10);
 
+  console.log(visited_locations); //Used for debugging, remove when locations are displayed to the user in the app
+  console.log(last_10_locations); //Same as above.
+});
 
 
 const App = () => {
@@ -41,6 +53,7 @@ const App = () => {
       ]
     );
 
+  const test_list = ["Location1", "Location2", "Location3"]
   //This creates the view that the user sees when they open the app
   return (
     <View style={styles.container}>
@@ -60,11 +73,21 @@ const App = () => {
           </View>
         </View>
       </Modal>
+      <View>
+        {test_list.map((item) => {
+          return(
+            <View>
+              <Text>{item}</Text>
+            </View>
+          );
+        })}
+      </View>
       <Text>Welcome to the Human Movement Mapping Project App!</Text>
       <Text></Text>
       <Button title = "Send Data!" onPress={ () => {writeUserData("user01", "Cam", "fake@fake.com", "google.com")}}></Button>
-      <Button title = "Send Location Data!" onPress={ () => {writeLocationData("user04", "Gym", 10)}}></Button>
+      <Button title = "Send Location Data!" onPress={ () => {writeLocationData("user07", "Home", 10)}}></Button>
       <Button title = "Send Position Data!" onPress={ () => {writePositionData("user04", 1000)}}></Button>
+      <Button title = "Send Data on how you moved between two locations!" onPress={ () => {writeMovementData("user04", "Home", "Gym", 10, 100, "Car")}}></Button>
       <StatusBar style="auto" />
     </View>
   );
