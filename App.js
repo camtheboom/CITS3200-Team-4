@@ -2,7 +2,7 @@ import { setStatusBarNetworkActivityIndicatorVisible, StatusBar } from 'expo-sta
 import { FlatList, StyleSheet, Text, View, Button, Alert, Modal, TextInput, ScrollView, RefreshControl } from 'react-native';
 import React, { useEffect, useState, useRef } from "react";
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, push } from "firebase/database";
+import { getDatabase, ref, onValue, set, push, get, child } from "firebase/database";
 import firebaseConfig from "./firebase.config";
 import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement } from "./database";
 
@@ -40,7 +40,9 @@ onValue(locationRef, (snapshot) => {
 
   console.log(visited_locations); //Used for debugging, remove when locations are displayed to the user in the app
   console.log(last_10_locations); //Same as above.
+  console.log(snapshot);
   window.last_10_locations = last_10_locations;
+  window.last_location = getLastLocationsVisited(visited_locations, 1);
 });
 
 const App = () => {
@@ -98,6 +100,46 @@ const App = () => {
     }
   }, []);
 
+  const [last, setLast] = useState("No locations visited yet")
+  onValue(locationRef, (snapshot) => {
+    var visited_locations = listOfLocationsVisited(snapshot); //Returns an array of the names of the locations visited
+    var last_10_locations = getLastLocationsVisited(visited_locations, 10);
+  
+    console.log("On value outputs");
+    console.log(visited_locations); //Used for debugging, remove when locations are displayed to the user in the app
+    console.log(last_10_locations); //Same as above.
+    console.log(snapshot);
+    window.last_10_locations = last_10_locations;
+    let last_location = getLastLocationsVisited(visited_locations, 1);
+    console.log("End of on value outputs");
+  });
+
+  const dbRef = ref(getDatabase());
+
+  get(child(dbRef, `users/${UserId}/locations_visited`)).then((snapshot) => {
+    if (snapshot.exists()) {
+      console.log(listOfLocationsVisited(snapshot));
+      console.log("Get method output");
+    } else {
+      console.log("No data avaliable.");
+    }
+  }).catch((error) => {
+    console.log(error);
+  })
+
+  //This set of code below successfully updates with the last location visited
+  const [tasks, setTasks] = useState("");
+
+  useEffect( () => {
+    return onValue(locationRef, querySnapShot => {
+      let data = querySnapShot || {};
+      let items = listOfLocationsVisited(data);
+      let last_item = getLastLocationsVisited(items, 1);
+      setTasks(last_item);
+    })
+  }, []);
+  //THIS SECTION ABOVE!!!!!!!!!!!!!!!!!!!!!
+
   //This creates the view that the user sees when they open the app
   return (
     <View style={styles.container}>
@@ -139,7 +181,7 @@ const App = () => {
         </View>
       </Modal>
 
-      <Text>Welcome to the Human Movement Mapping Project App!</Text>
+      <Text>{tasks}</Text>
       <Text></Text>
       <Button title="Send Data!" onPress={() => { writeUserData("user01", "Cam", "fake@fake.com", "google.com") }}></Button>
       <Button title="Send Location Data!" onPress={() => { writeLocationData("user07", "Work", 10) }}></Button>
