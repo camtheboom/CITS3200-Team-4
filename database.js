@@ -72,4 +72,15 @@ function writeMovementData(UserId, start_location, end_location, start_coordinat
   });
 };
 
-export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData };
+function reasonForMovement(UserId, reason, coordinates){
+  const db = getDatabase();
+  const reference = ref(db, 'users/' + UserId + '/reason_for_movement');
+  const pushReference = push(reference);
+
+  set (pushReference, {
+    reason: reason,
+    coordinates: coordinates
+  });
+};
+
+export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement };
