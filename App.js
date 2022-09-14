@@ -9,15 +9,28 @@ import { writeUserData, writeLocationData, writePositionData, listOfLocationsVis
 
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
+
 const fire = initializeApp(firebaseConfig); //Initialises the database
 const UserId = 'user07';
 const db = getDatabase();
+const locationRef = ref(db, 'users/' + UserId + '/locations_visited/'); //Path to visited locations in database
+
 const position_time_interval = 2000; //Interval of time between recording user position. 1000 = 1 second.
 const movement_time_interval = 5000; //Interval of time between checking if user moved. 1000 = 1 second.
 const stopped_time_interval = 10000; //Interval of time between checking if user stopped. 1000 = 1 second.
 const movement_threshold = 10; //Threshold. When the user moves further than this threshold, we consider it 'movement'
 const stopped_threshold = 10; //Threshold. When the user has not moved further than this threshold, we consider it 'stopped'.
+
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
+
+//This is used for debugging and logs data from the database
+onValue(locationRef, (snapshot) => {
+  var visited_locations = listOfLocationsVisited(snapshot); //Returns an array of the names of the locations visited
+  var last_10_locations = getLastLocationsVisited(visited_locations, 10);
+
+  console.log(visited_locations); //Used for debugging.
+  console.log(last_10_locations); //Same as above.
+});
 
 
 
@@ -31,19 +44,6 @@ function getLastLocationsVisited(visited_locations, number_of_locations) {
     return (last_locations);
   }
 };
-
-//This adds an event listener to the locations visited by the user. This runs once when the app starts, and then any time a new location is visited.
-const locationRef = ref(db, 'users/' + UserId + '/locations_visited/');
-onValue(locationRef, (snapshot) => {
-  var visited_locations = listOfLocationsVisited(snapshot); //Returns an array of the names of the locations visited
-  var last_10_locations = getLastLocationsVisited(visited_locations, 10);
-
-  console.log(visited_locations); //Used for debugging, remove when locations are displayed to the user in the app
-  console.log(last_10_locations); //Same as above.
-  console.log(snapshot);
-  window.last_10_locations = last_10_locations;
-  window.last_location = getLastLocationsVisited(visited_locations, 1);
-});
 
 const App = () => {
   let movement_change = 10; //A placeholder until we have access to GPS and can calculate the change in movement.
