@@ -63,11 +63,22 @@ const App = () => {
       <Text>Welcome to the Human Movement Mapping Project App!</Text>
       <Text></Text>
       <Button title = "Send Data!" onPress={ () => {writeUserData("user01", "Cam", "fake@fake.com", "google.com")}}></Button>
+      <Space></Space>
       <Button title = "Send Location Data!" onPress={ () => {writeLocationData("user04", "Gym", 10)}}></Button>
+      <Space></Space>
       <Button title = "Send Position Data!" onPress={ () => {writePositionData("user04", 1000)}}></Button>
       <StatusBar style="auto" />
     </View>
   );
+
+  // Create a new view that is displayed when the user clicks the "Send Data!" button
+  function Space() {
+    return (
+      <View style={styles.space}>
+        <Text></Text>
+      </View>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -83,5 +94,13 @@ const styles = StyleSheet.create({
     borderWidth: 2
   }
 });
+
+class Space extends React.Component {
+  // Creating a React Component to add space between the buttons
+  render() {
+    return <Text></Text>;
+  }
+}
+
 
 export default App
