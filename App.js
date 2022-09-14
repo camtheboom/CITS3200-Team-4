@@ -57,6 +57,8 @@ const App = () => {
   const [hasStopped, sethasStopped] = useState(false);
   const [location, setLocation] = useState('');
 
+  const [movement_method, setMovement_method] = useState("");
+
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
     if (movement_change >= movement_threshold) {
@@ -84,12 +86,13 @@ const App = () => {
 
   //This is used for tracking locations, and prompts the user to say why they have stopped every 10 seconds.
   useEffect( () => {
-  const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
-  setLocation('');
+    const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
+    setLocation('');
 
-  return () => {
-    clearTimeout(timer_stopped);
-  }}, [hasStopped]);
+    return () => {
+      clearTimeout(timer_stopped);
+    }
+  }, [hasStopped]);
 
   //This is used to continually log the users location
   useEffect( () => {
@@ -100,45 +103,19 @@ const App = () => {
     }
   }, []);
 
-  const [last, setLast] = useState("No locations visited yet")
-  onValue(locationRef, (snapshot) => {
-    var visited_locations = listOfLocationsVisited(snapshot); //Returns an array of the names of the locations visited
-    var last_10_locations = getLastLocationsVisited(visited_locations, 10);
-  
-    console.log("On value outputs");
-    console.log(visited_locations); //Used for debugging, remove when locations are displayed to the user in the app
-    console.log(last_10_locations); //Same as above.
-    console.log(snapshot);
-    window.last_10_locations = last_10_locations;
-    let last_location = getLastLocationsVisited(visited_locations, 1);
-    console.log("End of on value outputs");
-  });
-
-  const dbRef = ref(getDatabase());
-
-  get(child(dbRef, `users/${UserId}/locations_visited`)).then((snapshot) => {
-    if (snapshot.exists()) {
-      console.log(listOfLocationsVisited(snapshot));
-      console.log("Get method output");
-    } else {
-      console.log("No data avaliable.");
-    }
-  }).catch((error) => {
-    console.log(error);
-  })
-
   //This set of code below successfully updates with the last location visited
-  const [tasks, setTasks] = useState("");
+  const [last_loc, setLast_loc] = useState("");
 
   useEffect( () => {
     return onValue(locationRef, querySnapShot => {
       let data = querySnapShot || {};
       let items = listOfLocationsVisited(data);
       let last_item = getLastLocationsVisited(items, 1);
-      setTasks(last_item);
+
+      setLast_loc(last_item[0]);
+      setMovement_method('');
     })
   }, []);
-  //THIS SECTION ABOVE!!!!!!!!!!!!!!!!!!!!!
 
   //This creates the view that the user sees when they open the app
   return (
@@ -171,17 +148,23 @@ const App = () => {
               placeholder="Where you have stopped"
               onChangeText={(location) => setLocation(location)}
             ></TextInput>
+            <TextInput
+              value={movement_method}
+              placeholder="How you moved here - e.g. bus, car"
+              onChangeText={(movement_method) => setMovement_method(movement_method)}
+              ></TextInput>
             <Button title="Send Data!" 
             onPress={() => {
               sethasStopped(false);
               writeLocationData(UserId, location, current_coordinates);
+              writeMovementData(UserId, last_loc, location, 10, 20, movement_method)
               }}></Button>
             <Button title="I didn't stop!" onPress={() => sethasStopped(false)}></Button>
           </View>
         </View>
       </Modal>
 
-      <Text>{tasks}</Text>
+      <Text>{last_loc}</Text>
       <Text></Text>
       <Button title="Send Data!" onPress={() => { writeUserData("user01", "Cam", "fake@fake.com", "google.com") }}></Button>
       <Button title="Send Location Data!" onPress={() => { writeLocationData("user07", "Work", 10) }}></Button>
