@@ -1,6 +1,3 @@
-// Create basic React Native app page
-
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Button, Alert, Modal , TextInput, TouchableOpacity } from 'react-native';
 import {View,Text} from 'react-native';
 import React, { useState } from "react";
@@ -14,6 +11,8 @@ function ManualLog() {
         </View>
     );
     }
+
+export default ManualLog
 
 const styles = StyleSheet.create({
     container: {
@@ -41,6 +40,4 @@ const styles = StyleSheet.create({
     div: {
         flex:1
     }
-    });
-
-export default ManualLog
+});
