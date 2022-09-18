@@ -185,6 +185,43 @@ const App = () => {
             <Button title="Send Position Data!" onPress={() => { writePositionData("user04", 1000) }}></Button>
             <Button title="Send Data on how you moved between two locations!" onPress={() => { writeMovementData("user04", "Home", "Gym", 10, 100, "Car") }}></Button>
             <StatusBar style="auto" />
+            <NavigationContainer>
+                <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }}
+                    activeColor="white" >
+                    <Tab.Screen name="Home" component={HomeScreen}            //Home Screen
+                        options={{
+                            tabBarIcon: ({ color, size }) => (
+                                <MaterialCommunityIcons name="home" color={color} size={26} />
+                            ),
+                        }} />
+                    <Tab.Screen name="Settings" component={SettingsScreen}      //Settings Screen
+                        options={{
+                            tabBarIcon: ({ color, size }) => (
+                                <MaterialCommunityIcons name="cog-outline" color={color} size={26} />
+                            ),
+                        }} />
+                    <Tab.Screen name="TravelLog" component={TravelLogScreen}    // TravellogScreen
+                        options={{
+                            tabBarIcon: ({ color, size }) => (
+                                <MaterialCommunityIcons name="map" color={color} size={26} />
+                            ),
+                        }} />
+                    <Tab.Screen name="Statistics" component={StatisticsScreen}   // Statistics Screen
+                        options={{
+                            tabBarIcon: ({ color, size }) => (
+                                <MaterialCommunityIcons name="chart-line-variant" color={color}
+                                    size={26} />
+                            ),
+                        }} />
+                    <Tab.Screen name="Profile" component={ProfileScreen}   // Profile Screen
+                        options={{
+                            tabBarIcon: ({ color, size }) => (
+                                <MaterialCommunityIcons name="account-circle" color={color}
+                                    size={26} />
+                            ),
+                        }} />
+                </Tab.Navigator>
+            </NavigationContainer>
         </View> 
 
     );
