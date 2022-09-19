@@ -1,3 +1,5 @@
+//The stylesheet used over the various pages in the app
+
 import { StyleSheet } from 'react-native';
 
 

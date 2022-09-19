@@ -1,10 +1,10 @@
 import {Modal, TouchableOpacity, View,Text,Pressable } from 'react-native';
 import React, { useState } from "react";
 
-import styles from '../styles/default.js'
+import styles from '../styles/default.js' //Importing the default styles from the styles folder.
 
-const AutoLog = () => {
-    const [modalVisible, setModalVisible] = useState(true);
+const AutoLog = () => { //AutoLog view
+    const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main AutoLog page.
     return (
         
         <View style={styles.centeredView} >

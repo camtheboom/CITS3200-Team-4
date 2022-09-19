@@ -1,3 +1,7 @@
+//Settings page.
+//Similar in design to the home screen, but with different buttons.
+//The buttons on this page are not yet implemented on the backend, but the front end is good :)
+
 import { StyleSheet, Button, Alert, Modal , TextInput, TouchableOpacity } from 'react-native';
 import {View,Text} from 'react-native';
 import React, { useState } from "react";
