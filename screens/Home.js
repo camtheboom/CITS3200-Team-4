@@ -3,6 +3,7 @@ import {View,Text} from 'react-native';
 import React, { useState } from "react";
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Notifications } from 'react-native-notifications';
 
 import styles from '../styles/default.js';
 
@@ -11,7 +12,8 @@ import ManualLog from './ManualLog.js'
 
 const Stack = createNativeStackNavigator(); //Creating a stack navigator to navigate between the screens.
 
-function HomePage({ navigation }){ //Creating the default view of the home screen. Edit this if you wish to change the style of the home screen.
+const  HomePage = ({ navigation }) => { //Creating the default view of the home screen. Edit this if you wish to change the style of the home screen.
+  
   return (
       <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
           <View style = {styles.div}></View>
@@ -31,7 +33,7 @@ function HomePage({ navigation }){ //Creating the default view of the home scree
   )
 }
 
-function Home() { //Combining the three views into a stack to be navigated between.
+const Home = () => { //Combining the three views into a stack to be navigated between.
     return (
         <NavigationContainer independent = {true}>
           <Stack.Navigator initialRouteName="Home Page">
@@ -47,31 +49,3 @@ function Home() { //Combining the three views into a stack to be navigated betwe
     )
 }
 export default Home
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   input: {
-//     height:40,
-//     borderColor: 'black',
-//     borderWidth: 2
-//   },
-//   button: {
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: '#A9A9A9',
-//     padding: 10,
-//     borderRadius: 10,
-//     width: 250,
-//     marginTop: 10,
-//     height: 100,
-//     flex: 1
-//   },
-//   div: {
-//     flex:1
-//   }
-// });

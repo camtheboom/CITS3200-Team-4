@@ -7,12 +7,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-      },
+    },
       input: {
         height:40,
         borderColor: 'black',
         borderWidth: 2
-      },
+    },
       button: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -23,7 +23,13 @@ const styles = StyleSheet.create({
         marginTop: 10,
         height: 100,
         flex: 1
-      },
+    },
+      modalButton: {
+        borderRadius: 5,
+        padding: 10,
+        elevation: 2,
+        width:300
+    },
     div: {
         flex:3
     },
@@ -37,41 +43,41 @@ const styles = StyleSheet.create({
         flex: 1
     },
     centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
     },
     modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-        width: 0,
-        height: 2
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
     },
     buttonOpen: {
-    backgroundColor: "#F194FF",
+        backgroundColor: "#F194FF",
     },
     buttonClose: {
-    backgroundColor: "#2196F3",
-    marginTop: 10
+        backgroundColor: "#2196F3",
+        marginTop: 10
     },
     textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
     },
     modalText: {
-    marginBottom: 15,
-    textAlign: "center"
+        marginBottom: 15,
+        textAlign: "center"
     }
 });
 
