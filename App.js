@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert, Modal , TextInput } from 'react-native';
-import React, { useState } from "react";
+import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity } from 'react-native';
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push } from "firebase/database";
 import firebaseConfig from "./firebase.config";
 import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited} from "./database";
+import * as React from 'react';
+
 
 // Nav Bar Imports
 
@@ -18,46 +19,47 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import { NavigationContainer } from '@react-navigation/native';
 import  MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
 
+
 const Tab = createMaterialBottomTabNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-    <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }} 
-activeColor="white" >
-      <Tab.Screen name="Home" component={HomeScreen}            //Home Screen
-      options={{
-        tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home" color={color} size={26}/>
-        ),
-    }}/>
-      <Tab.Screen name="Settings" component={SettingsScreen}      //Settings Screen
-      options={{
-        tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="cog-outline" color={color} size={26}/>
-        ),
-    }}/>
-      <Tab.Screen name="TravelLog" component={TravelLogScreen}    // TravellogScreen
-      options={{
-        tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="map" color={color} size={26}/>
-        ),
-    }}/>
-      <Tab.Screen name="Statistics" component={StatisticsScreen}   // Statistics Screen
-      options={{
-        tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="chart-line-variant" color={color} 
-size={26}/>
-        ),
-    }}/>
-      <Tab.Screen name="Profile" component={ProfileScreen}   // Profile Screen
-      options={{
-        tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-circle" color={color} 
-size={26}/>
-        ),
-    }}/>
-    </Tab.Navigator>
+      <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }} 
+      activeColor="white" >
+        <Tab.Screen name="Home" component={HomeScreen}            //Home Screen
+        options={{
+          tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="home" color={color} size={26}/>
+          ),
+      }}/>
+        <Tab.Screen name="Settings" component={SettingsScreen}      //Settings Screen
+        options={{
+          tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="cog-outline" color={color} size={26}/>
+          ),
+      }}/>
+        <Tab.Screen name="TravelLog" component={TravelLogScreen}    // TravellogScreen
+        options={{
+          tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="map" color={color} size={26}/>
+          ),
+      }}/>
+        <Tab.Screen name="Statistics" component={StatisticsScreen}   // Statistics Screen
+        options={{
+          tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="chart-line-variant" color={color} 
+  size={26}/>
+          ),
+      }}/>
+        <Tab.Screen name="Profile" component={ProfileScreen}   // Profile Screen
+        options={{
+          tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="account-circle" color={color} 
+  size={26}/>
+          ),
+      }}/>
+      </Tab.Navigator>
     </NavigationContainer>
   );
 }
@@ -143,7 +145,22 @@ onValue(locationRef, (snapshot) => {
 //     height:40,
 //     borderColor: 'black',
 //     borderWidth: 2
+//   },
+//   button: {
+//     alignItems: 'center',
+//     backgroundColor: '#A9A9A9',
+//     padding: 10,
+//     borderRadius: 10,
+//     width: 200,
+//     margin: 10,
+//     height: 100,
+//     flex: 1
 //   }
 // });
 
 // //export default App
+
+// hex code for grey
+// #808080
+// Bit lighter
+// #A9A9A9
