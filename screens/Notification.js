@@ -1,4 +1,4 @@
-// Basic react native page
+// Page on which the notification settings will live.
 
 import { StyleSheet, Button, Alert, Modal , TextInput, TouchableOpacity } from 'react-native';
 import {View,Text} from 'react-native';
