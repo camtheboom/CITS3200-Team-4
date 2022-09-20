@@ -5,6 +5,19 @@ import styles from '../styles/default.js' //Importing the default styles from th
 
 const AutoLog = () => { //AutoLog view
     const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main AutoLog page.
+  /* 
+    For Map Displaying
+  */
+    const [mapRegion, setmapRegion] = useState({
+      latitude: -31.953512,
+      longitude: 115.857048,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+
+  // ** // 
+
+
     return (
         
         <View style={styles.centeredView} >
@@ -37,7 +50,17 @@ const AutoLog = () => { //AutoLog view
             <Text style={styles.textStyle}>START</Text>
           </TouchableOpacity>
           <View style = {styles.div}></View>
-          
+          {/* MAP DISPLAY  */}
+          <View style={styles.container}>
+            <MapView
+              style={{ alignSelf: 'stretch', height: '100%' }}
+              region={mapRegion}
+            >
+                <Marker coordinate={mapRegion} title='Marker'/>
+
+            </MapView>
+          </View>
+          {/* TO HERE */}
         </View>
       );
     }
