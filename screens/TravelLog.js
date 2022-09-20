@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native'
 function TravelLog() {
   return (
     <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
-      <Text>Profile Screen</Text>
+      <Text>Travel Log</Text>
     </View>
   )
 }
