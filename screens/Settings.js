@@ -11,7 +11,6 @@ import {ToastAndroid, Platform, AlertIOS } from 'react-native';
 
 
 import styles from '../styles/default.js';
-import DownloadPage from './Download.js';
 import NotificationPage from './Notification.js';
 
 // import AutoLog from './AutoLog.js' //Importing AutoLog and ManualLog js files, which are displayed when the respective button is clicked.
@@ -54,7 +53,6 @@ const Settings = () => { //Combining the three views into a stack to be navigate
           <Stack.Navigator initialRouteName="Settings">
 
             <Stack.Screen name="Settings" component={SettingsPage} />
-            <Stack.Screen name="Download" component={DownloadPage} />
             <Stack.Screen name="Notification Settings" component={NotificationPage} />
             
           </Stack.Navigator>
