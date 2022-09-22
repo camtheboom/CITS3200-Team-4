@@ -57,4 +57,30 @@ function listOfLocationsVisited(snapshot){
     return(visited_locations);
 };
 
-export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited };
+//This function saves to the database a starting and finishing location, and the method of transport used to move between them (E.g. car, walking, bus, etc.)
+function writeMovementData(UserId, start_location, end_location, start_coordinates, end_coordinates, method_of_movement){
+  const db = getDatabase();
+  const reference = ref(db, 'users/' + UserId + '/movement_data');
+  const pushReference = push(reference);
+
+  set (pushReference, {
+    start_location: start_location,
+    end_location: end_location,
+    start_coordinates: start_coordinates,
+    end_coordinates: end_coordinates,
+    method_of_movement: method_of_movement
+  });
+};
+
+function reasonForMovement(UserId, reason, coordinates){
+  const db = getDatabase();
+  const reference = ref(db, 'users/' + UserId + '/reason_for_movement');
+  const pushReference = push(reference);
+
+  set (pushReference, {
+    reason: reason,
+    coordinates: coordinates
+  });
+};
+
+export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement };
