@@ -62,6 +62,13 @@ const App = () => {
   let movement_change = 10; //A placeholder until we have access to GPS and can calculate the change in movement.
   let current_coordinates = 5; //A placeholder until we have access to GPS.
 
+  const trackingStateRef = useRef();
+
+  const getTrackingState = () => {
+    const trackingState = trackingStateRef.current.getTrackingStatus();
+    console.log(trackingState);
+  }
+
   //This stores whether the user has moved or not, as well as their reason for moving
   const [hasMoved, sethasMoved] = useState(false);
   const [movement, setMovement] = useState('');
@@ -71,6 +78,7 @@ const App = () => {
   const [location, setLocation] = useState('');
 
   const [movement_method, setMovement_method] = useState("")
+  const [tracking, setTracking] = useState(false);
 
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
@@ -82,7 +90,7 @@ const App = () => {
 
   //Checks if user has moved below the threshold. Needs to be updated with GPS.
   function checkStopped() {
-    if (movement_change <= stopped_threshold) {
+    if (movement_change <= stopped_threshold & tracking) {
       sethasStopped(true);
       window.current_coordinates = 5000;
     }
