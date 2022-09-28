@@ -1,10 +1,12 @@
+// location grabber
+
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { Text, TextInput, Pressable, View, Alert } from 'react-native';
-import * as Location from "expo-location";
+import * as Location from "expo-location"
 
-export default class Grabber extends React.Component {
 
+export default class App extends React.Component {
     state = {
         errorMessage: "",
         location: {}
