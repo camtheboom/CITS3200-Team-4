@@ -24,3 +24,6 @@ Open the Command Prompt and navigate to the directory you have the project store
 
 ## Installing Map feature required for expo location
 Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: expo install react-native-maps
+
+## Installing Task Manager required by expo location to ask for foreground permissions
+Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: expo install expo-task-manager
