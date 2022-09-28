@@ -26,10 +26,9 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 20,
     },
     paragraph: {
-        fontSize: 18,
+        fontSize: 16,
         textAlign: 'center',
     },
 });
