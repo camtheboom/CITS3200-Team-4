@@ -9,7 +9,7 @@ const App = () => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     });
-   eturn (
+  eturn (
         <View style={styles.container}>
             <MapView
                 style={{ alignSelf: 'stretch', height: '100%' }}
@@ -33,6 +33,10 @@ const App = () => {
             }
 
         })();
+    }, []);
+
+
+};
     }, []);
 
 
