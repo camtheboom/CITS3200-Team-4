@@ -44,3 +44,43 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
 });
+
+
+/// way to grab user current location///
+export default class App extends React.Component {
+    state = {
+        errorMessage: "",
+        location: {}
+    }
+
+    getAddress() {
+        return this.state.address
+    }
+
+    _getLocation = async () => {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+            console.log("PERMISSION LACK!")
+            this.setState({
+                errorMessage: "PERMISSION NOT GRANTED"
+            });
+        }
+        console.log("there")
+        const userLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest, maximumAge: 10000 })
+        console.log("here")
+        console.log(JSON.stringify(userLocation))
+        this.setState({
+            location: userLocation
+        })
+    }
+
+    render() {
+        this._getLocation()
+
+        return (
+            <View>
+                <Text>Salut</Text>
+            </View>
+        );
+    }
+
