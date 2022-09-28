@@ -9,7 +9,7 @@ const App = () => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     });
-    return (
+   eturn (
         <View style={styles.container}>
             <MapView
                 style={{ alignSelf: 'stretch', height: '100%' }}
@@ -18,19 +18,24 @@ const App = () => {
                 <Marker coordinate={mapRegion} title='Marker' />
             </MapView>
         </View>
+
     );
+    //Used to check if permission is granted 
+    useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setStatus('Permission to access location was denied');
+                return;
+            } else {
+                console.log('Access granted!!')
+                setStatus(status)
+            }
+
+        })();
+    }, []);
+
+
 };
-export default App;
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    paragraph: {
-        fontSize: 16,
-        textAlign: 'center',
-    },
-});
 
 
