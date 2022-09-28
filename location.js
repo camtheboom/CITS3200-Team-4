@@ -1,38 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Platform, Text, View, StyleSheet } from 'react-native';
-import Device from 'expo-device'; import * as Location from 'expo-location';
-
-export default function App() {
-    const [location, setLocation] = useState(null);
-    const [errorMsg, setErrorMsg] = useState(null);
-    const [status, requestPermission] = Location.useForegroundPermissions();
-
-    useEffect(() => {
-        (async () => {
-            if (Platform.OS === 'android' && !Device.isDevice) {
-                setErrorMsg(
-                    'Oops, this will not work on Snack in an Android Emulator. Try it on your device!'
-                );
-                return;
-            } let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied');
-                return;
-            }
-
-            let location = await Location.getCurrentPositionAsync({});
-            setLocation(location);
-        })();
-    }, []);
-
-    let text = 'Waiting..';
-    if (errorMsg) {
-        text = errorMsg;
-    } else if (location) {
-        text = JSON.stringify(location);
-    }
-
-    return (
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+import MapView from 'react-native-maps';
+const App = () => {
+  const [mapRegion, setmapRegion] = useState({
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
+  return (
+    <View style={styles.container}>
+      <MapView
+        style={{ alignSelf: 'stretch', height: '100%' }}
+        region={mapRegion}
+      />
+    </View>
+  );
+};
+export default App;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
         <View style={styles.container}>
             <Text style={styles.paragraph}>{text}</Text>
         </View>
