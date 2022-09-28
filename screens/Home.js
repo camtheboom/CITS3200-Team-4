@@ -12,11 +12,25 @@ import ManualLog from './ManualLog.js'
 
 const Stack = createNativeStackNavigator(); //Creating a stack navigator to navigate between the screens.
 
-const  HomePage = ({ navigation }) => { //Creating the default view of the home screen. Edit this if you wish to change the style of the home screen.
-  
+state = {
+  isActive:false  }
+
+handleShow = ()=>{
+  this.setState({
+  isActive: true})
+}
+
+handleHide = () =>{
+  this.setState({
+  isActive: false})
+}
+
+const HomePage = ({ navigation }) => { //Creating the default view of the home screen. Edit this if you wish to change the style of the home screen.
+
+
   return (
       <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
-          <View style = {styles.div}></View>
+          <View style = {styles.div3}></View>
           <Text>Home Screen</Text>
           <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
               onPress={() => navigation.navigate('AutoLog')}
@@ -28,7 +42,10 @@ const  HomePage = ({ navigation }) => { //Creating the default view of the home 
               style={styles.button}>
               <Text style={{ fontSize: 20, color: '#fff' }}>Manual Log</Text>
           </TouchableOpacity>
-          <View style = {styles.div}></View>
+          {/* {this.state.isActive ? <TouchableOpacity style = {styles.redbutton} onpress = {() => handleHide}><Text>Stop Tracking</Text>
+            </TouchableOpacity> : null } */}
+          
+          <View style = {styles.div3}></View>
       </View>
   )
 }

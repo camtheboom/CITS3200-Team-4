@@ -30,13 +30,13 @@ const AutoLog = () => { //AutoLog view
               </View>
             </View>
           </Modal>
-          <View style = {styles.div}></View>
-          <View style = {styles.div}></View>
-          <View style = {styles.div}></View>
-          <TouchableOpacity style ={styles.startbutton}>
+          <View style = {styles.div3}></View>
+          <View style = {styles.div3}></View>
+          <View style = {styles.div3}></View>
+          <TouchableOpacity style ={styles.startbutton} onPress = {() => alert('hello!')}>
             <Text style={styles.textStyle}>START</Text>
           </TouchableOpacity>
-          <View style = {styles.div}></View>
+          <View style = {styles.div1}></View>
           
         </View>
       );

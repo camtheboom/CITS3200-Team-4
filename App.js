@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, TouchableOpacityBase } from 'react-native';
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push } from "firebase/database";
 import firebaseConfig from "./firebase.config";
@@ -53,6 +53,8 @@ import ProfileScreen from './screens/Profile';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import  MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import styles from './styles/default.js' //Importing the default styles from the styles folder.
 
 
 
@@ -133,29 +135,28 @@ const App = () => {
   return (
     <NavigationContainer>
       <View>
-
-      <Modal animationType='slide' visible={hasMoved}>
-        <View>
-          <View>
+        <Modal animationType='slide' visible={hasMoved}>
+          <View style = {styles.container}>
+            <View style = {styles.div3}></View>
             <Text>Please fill out your reason for moving:</Text>
             <TextInput
               value={movement}
               placeholder="Reason for Movement"
               onChangeText={(movement) => setMovement(movement)}
             ></TextInput>
-            <Button title="Send Data!" 
+            <TouchableOpacity style = {styles.button} 
             onPress={() => {
               sethasMoved(false);
               reasonForMovement(UserId, movement, current_coordinates);
-              }}></Button>
-            <Button title="I didn't move!" onPress={() => sethasMoved(false)}></Button>
+              }}><Text style = {styles.textStyle}>Send data!</Text></TouchableOpacity>
+            <TouchableOpacity style = {styles.button} onPress={() => sethasMoved(false)}><Text style = {styles.textStyle}>I didn't move!</Text></TouchableOpacity>
+            <View style = {styles.div1}></View> 
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      <Modal animationType='slide' visible={hasStopped}>
-        <View>
-          <View>
+        <Modal animationType='slide' visible={hasStopped}>
+          <View style = {styles.container}>
+            <View style = {styles.div3}></View>
             <Text>Please fill out where you have stopped:</Text>
             <TextInput
               value={location}
@@ -167,18 +168,18 @@ const App = () => {
               placeholder="How you moved here - e.g. bus, car"
               onChangeText={(movement_method) => setMovement_method(movement_method)}
               ></TextInput>
-            <Button title="Send Data!" 
+            <TouchableOpacity style = {styles.button}
             onPress={() => {
               sethasStopped(false);
               writeLocationData(UserId, location, current_coordinates);
               writeMovementData(UserId, last_loc, location, 10, 20, movement_method)
-              }}></Button>
-            <Button title="I didn't stop!" onPress={() => sethasStopped(false)}></Button>
+              }}><Text style = {styles.textStyle}>Send Data!</Text></TouchableOpacity>
+            <TouchableOpacity style = {styles.button} onPress={() => sethasStopped(false)}><Text style = {styles.textStyle}>I didn't stop!</Text></TouchableOpacity>
+            <View style = {styles.div1}></View>
           </View>
-        </View>
-      </Modal>
-
+        </Modal>
       </View>
+
       <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }} 
       activeColor="white" >
         <Tab.Screen name="Home" component={HomeScreen}            //Home Screen
