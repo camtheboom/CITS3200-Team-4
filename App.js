@@ -1,11 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable } from 'react-native';
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push } from "firebase/database";
 import firebaseConfig from "./firebase.config";
 import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement } from "./database";
 import * as React from 'react';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, createContext, useContext } from "react";
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import styles from './styles/default.js';
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 const fire = initializeApp(firebaseConfig); //Initialises the database
@@ -45,29 +47,34 @@ onValue(locationRef, (snapshot) => {
 // Nav Bar Imports
 
 import { Component } from 'react'
-import HomeScreen from './screens/Home';
 import TravelLogScreen from './screens/TravelLog';
 import StatisticsScreen from './screens/Statistics';
 import SettingsScreen from './screens/Settings';
 import ProfileScreen from './screens/Profile';
+import ManualLog from './screens/ManualLog';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import  MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
 
+//For controlling whether you are being tracked
+const trackingContext = createContext({
+  tracking: true,
+  setTracking: () => {}
+});
 
+const Stack = createNativeStackNavigator(); //Creating a stack navigator to navigate between the screens.
+  
 
 const Tab = createMaterialBottomTabNavigator();
-
 const App = () => {
   let movement_change = 10; //A placeholder until we have access to GPS and can calculate the change in movement.
   let current_coordinates = 5; //A placeholder until we have access to GPS.
+  const [tracking, setTracking] = useState(false);
 
-  const trackingStateRef = useRef();
-
-  const getTrackingState = () => {
-    const trackingState = trackingStateRef.current.getTrackingStatus();
-    console.log(trackingState);
-  }
+  function changeTracking(newTracking) {
+    setTracking(newTracking);
+    console.log(tracking);
+  };
 
   //This stores whether the user has moved or not, as well as their reason for moving
   const [hasMoved, sethasMoved] = useState(false);
@@ -78,19 +85,20 @@ const App = () => {
   const [location, setLocation] = useState('');
 
   const [movement_method, setMovement_method] = useState("")
-  const [tracking, setTracking] = useState(false);
 
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
-    if (movement_change >= movement_threshold) {
+    if (movement_change >= movement_threshold && tracking) {
       sethasMoved(true);
       window.current_coordinates = 5000;
+    } else {
+      sethasMoved(false);
     }
   }
 
   //Checks if user has moved below the threshold. Needs to be updated with GPS.
   function checkStopped() {
-    if (movement_change <= stopped_threshold & tracking) {
+    if (movement_change <= stopped_threshold && tracking) {
       sethasStopped(true);
       window.current_coordinates = 5000;
     }
@@ -103,7 +111,7 @@ const App = () => {
 
     return () => {
       clearTimeout(timer_movement);
-  }}, [hasMoved]);
+  }}, []);
 
   //This is used for tracking locations, and prompts the user to say why they have stopped every 10 seconds.
   useEffect( () => {
@@ -138,10 +146,95 @@ const App = () => {
     })
   }, []);
 
+  const AutoLog = () => { //AutoLog view
+    const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main AutoLog page.
+
+    return (
+        <View style={styles.centeredView} >
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
+            }}
+          >
+            <View style={styles.container}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>
+                    ATTENTION: AutoLog will log your location data every minute. Click START on the following page to begin location tracking.
+                    </Text>
+                <Pressable
+                  style={[styles.modalButton, styles.buttonClose]}
+                  onPress={() => setModalVisible(!modalVisible)}
+                >
+                  <Text style={styles.textStyle}>OK</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
+          <View style = {styles.div}></View>
+          <View style = {styles.div}></View>
+          <View style = {styles.div}></View>
+          <TouchableOpacity style ={styles.startbutton}>
+          <Pressable onPress={() => setTracking(true)}>
+            <Text style={styles.textStyle}>START</Text>
+          </Pressable>
+          </TouchableOpacity>
+  
+          <View style = {styles.div}></View>
+  
+          <TouchableOpacity style ={styles.startbutton}>
+          <Pressable onPress={() => setTracking(false)}>
+            <Text style={styles.textStyle}>STOP</Text>
+          </Pressable>
+          </TouchableOpacity>
+          <View style = {styles.div}></View>
+          
+        </View>
+      );
+    };
+
+    const  HomePage = ({ navigation }) => { //Creating the default view of the home screen. Edit this if you wish to change the style of the home screen.
+  
+      return (
+          <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
+              <View style = {styles.div}></View>
+              <Text>Home Screen</Text>
+              <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
+                  onPress={() => navigation.navigate('AutoLog')}
+                  style={styles.button}>
+                  <Text style={{ fontSize: 20, textAlign: 'center', color:'#fff'}}>Start Automatic tracking</Text>
+              </TouchableOpacity>
+              <TouchableOpacity //Button that, when clicked, navigates to the ManualLog screen.
+                  onPress={() => navigation.navigate('ManualLog')}
+                  style={styles.button}>
+                  <Text style={{ fontSize: 20, color: '#fff' }}>Manual Log</Text>
+              </TouchableOpacity>
+              <View style = {styles.div}></View>
+          </View>
+      )
+    };
+      
+    const HomeScreen = () => { //Combining the three views into a stack to be navigated between.
+        return (
+            <NavigationContainer independent = {true}>
+              <Stack.Navigator initialRouteName="Home Page">
+      
+                <Stack.Screen name="Home Page" component={HomePage} />
+                <Stack.Screen name="AutoLog" component={AutoLog} />
+                <Stack.Screen name="ManualLog" component={ManualLog} />
+                  
+              </Stack.Navigator>
+            </NavigationContainer>
+      
+              // 
+      );
+    };
+  
   return (
     <NavigationContainer>
       <View>
-
       <Modal animationType='slide' visible={hasMoved}>
         <View>
           <View>
