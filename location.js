@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react"
-import { StyleSheet, Text, View, Button } from "react-native"
+
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, Text, Dimensions } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { FontAwesome } from '@expo/vector-icons';
+import * as Location from 'expo-location'
 import * as TaskManager from "expo-task-manager"
-import * as Location from "expo-location"
 
 const LOCATION_TASK_NAME = "LOCATION_TASK_NAME"
 let foregroundSubscription = null
@@ -22,10 +25,15 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
     }
 })
 
-export default function App() {
+const MapComponent = () => {
+    const [mapRegion, setmapRegion] = useState({
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+    });
     // Define position state: {latitude: number, longitude: number}
-    const [position, setPosition] = useState(null)
-
+    const [position, setPosition] = useState({})
     // Request permissions right after starting the app
     useEffect(() => {
         const requestPermissions = async () => {
@@ -64,105 +72,28 @@ export default function App() {
         foregroundSubscription?.remove()
         setPosition(null)
     }
-
-    // Start location tracking in background
-    const startBackgroundUpdate = async () => {
-        // Don't track position if permission is not granted
-        const { granted } = await Location.getBackgroundPermissionsAsync()
-        if (!granted) {
-            console.log("location tracking denied")
-            return
-        }
-
-        // Make sure the task is defined otherwise do not start tracking
-        const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME)
-        if (!isTaskDefined) {
-            console.log("Task is not defined")
-            return
-        }
-
-        // Don't track if it is already running in background
-        const hasStarted = await Location.hasStartedLocationUpdatesAsync(
-            LOCATION_TASK_NAME
-        )
-        if (hasStarted) {
-            console.log("Already started")
-            return
-        }
-
-        await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-            // For better logs, we set the accuracy to the most sensitive option
-            accuracy: Location.Accuracy.BestForNavigation,
-            // Make sure to enable this notification if you want to consistently track in the background
-            showsBackgroundLocationIndicator: true,
-            foregroundService: {
-                notificationTitle: "Location",
-                notificationBody: "Location tracking in background",
-                notificationColor: "#fff",
-            },
-        })
-    }
-
-    // Stop location tracking in background
-    const stopBackgroundUpdate = async () => {
-        const hasStarted = await Location.hasStartedLocationUpdatesAsync(
-            LOCATION_TASK_NAME
-        )
-        if (hasStarted) {
-            await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
-            console.log("Location tacking stopped")
-        }
-    }
-
     return (
         <View style={styles.container}>
-            <Text>Longitude: {position?.longitude}</Text>
-            <Text>Latitude: {position?.latitude}</Text>
-            <View style={styles.separator} />
-            <Button
-                onPress={startForegroundUpdate}
-                title="Start in foreground"
-                color="green"
-            />
-            <View style={styles.separator} />
-            <Button
-                onPress={stopForegroundUpdate}
-                title="Stop in foreground"
-                color="red"
-            />
-            <View style={styles.separator} />
-            <Button
-                onPress={startBackgroundUpdate}
-                title="Start in background"
-                color="green"
-            />
-            <View style={styles.separator} />
-            <Button
-                onPress={stopBackgroundUpdate}
-                title="Stop in foreground"
-                color="red"
-            />
+            <MapView style={styles.map}
+                showsUserLocation={true}
+                followsUserLocation={true}
+            >
+            </MapView>
         </View>
-    )
-}
+    );
+};
+export default MapComponent;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        alignItems: "center",
-        justifyContent: "center",
+    map: {
+        width: Dimensions.get('screen').width,
+        height: Dimensions.get('screen').height * 0.90,
     },
-    switchContainer: {
-        flexDirection: "row",
-        alignItems: "center",
+    heading: {
+        alignSelf: 'center',
+        paddingTop: 20,
+        marginBottom: 10,
+        fontSize: 24
     },
-    button: {
-        marginTop: 15,
-    },
-    separator: {
-        marginVertical: 8,
-    },
-})
-
+});
 
