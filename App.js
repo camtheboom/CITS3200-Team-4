@@ -93,6 +93,7 @@ const App = () => {
     }
   }
 
+
   //This is used for tracking movement, and prompts the user to say why they have moved every 5 seconds.
   useEffect( () => {
     const timer_movement = setTimeout( () => checkMovement(), movement_time_interval);
@@ -241,7 +242,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <View>
-      <Modal animationType='slide' visible={hasMoved}>
+      <Modal animationType='slide' visible={hasMoved && tracking}>
         <View>
           <View>
             <Text>Please fill out your reason for moving:</Text>
@@ -260,7 +261,7 @@ const App = () => {
         </View>
       </Modal>
 
-      <Modal animationType='slide' visible={hasStopped}>
+      <Modal animationType='slide' visible={hasStopped && tracking}>
         <View>
           <View>
             <Text>Please fill out where you have stopped:</Text>
