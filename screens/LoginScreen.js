@@ -12,7 +12,7 @@ import { useEffect } from "react";
 let app = initializeApp(firebaseConfig)
 
 const auth = getAuth(app);
-const navigation = useNavigation;
+const navigation = useNavigation();
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
