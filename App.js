@@ -47,6 +47,7 @@ onValue(locationRef, (snapshot) => {
 // Nav Bar Imports
 
 import { Component } from 'react'
+import LoginScreen from './screens/LoginScreen';
 import TravelLogScreen from './screens/TravelLog';
 import StatisticsScreen from './screens/Statistics';
 import SettingsScreen from './screens/Settings';
@@ -226,8 +227,9 @@ const App = () => {
     const HomeScreen = () => { //Combining the three views into a stack to be navigated between.
         return (
             <NavigationContainer independent = {true}>
-              <Stack.Navigator initialRouteName="Home Page">
+              <Stack.Navigator initialRouteName="Login Page">
       
+                <Stack.Screen name="Login Page" component={LoginScreen} />
                 <Stack.Screen name="Home Page" component={HomePage} />
                 <Stack.Screen name="AutoLog" component={AutoLog} />
                 <Stack.Screen name="ManualLog" component={ManualLog} />
