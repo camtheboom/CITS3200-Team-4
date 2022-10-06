@@ -56,12 +56,6 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import { NavigationContainer } from '@react-navigation/native';
 import  MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
 
-//For controlling whether you are being tracked
-const trackingContext = createContext({
-  tracking: true,
-  setTracking: () => {}
-});
-
 const Stack = createNativeStackNavigator(); //Creating a stack navigator to navigate between the screens.
   
 
@@ -70,11 +64,6 @@ const App = () => {
   let movement_change = 10; //A placeholder until we have access to GPS and can calculate the change in movement.
   let current_coordinates = 5; //A placeholder until we have access to GPS.
   const [tracking, setTracking] = useState(false);
-
-  function changeTracking(newTracking) {
-    setTracking(newTracking);
-    console.log(tracking);
-  };
 
   //This stores whether the user has moved or not, as well as their reason for moving
   const [hasMoved, sethasMoved] = useState(false);
@@ -111,7 +100,7 @@ const App = () => {
 
     return () => {
       clearTimeout(timer_movement);
-  }}, []);
+  }}, [tracking]);
 
   //This is used for tracking locations, and prompts the user to say why they have stopped every 10 seconds.
   useEffect( () => {
@@ -121,7 +110,7 @@ const App = () => {
     return () => {
       clearTimeout(timer_stopped);
     }
-  }, [hasStopped]);
+  }, [tracking]);
 
   //This is used to continually log the users location
   useEffect( () => {
