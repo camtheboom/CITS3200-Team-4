@@ -102,6 +102,14 @@ const App = () => {
       clearTimeout(timer_movement);
   }}, [tracking]);
 
+  useEffect( () => {
+    const timer_movement = setTimeout( () => checkMovement(), movement_time_interval);
+    setMovement('');
+
+    return () => {
+      clearTimeout(timer_movement);
+  }}, [hasMoved]);
+
   //This is used for tracking locations, and prompts the user to say why they have stopped every 10 seconds.
   useEffect( () => {
     const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
@@ -111,6 +119,15 @@ const App = () => {
       clearTimeout(timer_stopped);
     }
   }, [tracking]);
+
+  useEffect( () => {
+    const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
+    setLocation('');
+
+    return () => {
+      clearTimeout(timer_stopped);
+    }
+  }, [hasStopped]);
 
   //This is used to continually log the users location
   useEffect( () => {
