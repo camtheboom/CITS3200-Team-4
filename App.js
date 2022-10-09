@@ -7,6 +7,8 @@ import { writeUserData, writeLocationData, writePositionData, listOfLocationsVis
 import * as React from 'react';
 import { useEffect, useState, useRef } from "react";
 
+import styles from './styles/default.js'
+
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 const fire = initializeApp(firebaseConfig); //Initialises the database
 const UserId = 'user07';
@@ -135,27 +137,27 @@ const App = () => {
       <View>
 
       <Modal animationType='slide' visible={hasMoved}>
-        <View>
-          <View>
+          <View style = {styles.container}>
+            <View style = {styles.div3}></View>
             <Text>Please fill out your reason for moving:</Text>
             <TextInput
               value={movement}
               placeholder="Reason for Movement"
               onChangeText={(movement) => setMovement(movement)}
             ></TextInput>
-            <Button title="Send Data!" 
+            <TouchableOpacity style = {styles.button} 
             onPress={() => {
               sethasMoved(false);
               reasonForMovement(UserId, movement, current_coordinates);
-              }}></Button>
-            <Button title="I didn't move!" onPress={() => sethasMoved(false)}></Button>
+              }}><Text style = {styles.textStyle}>Send data!</Text></TouchableOpacity>
+            <TouchableOpacity style = {styles.button} onPress={() => sethasMoved(false)}><Text style = {styles.textStyle}>I didn't move!</Text></TouchableOpacity>
+            <View style = {styles.div1}></View> 
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      <Modal animationType='slide' visible={hasStopped}>
-        <View>
-          <View>
+        <Modal animationType='slide' visible={hasStopped}>
+          <View style = {styles.container}>
+            <View style = {styles.div3}></View>
             <Text>Please fill out where you have stopped:</Text>
             <TextInput
               value={location}
@@ -167,16 +169,16 @@ const App = () => {
               placeholder="How you moved here - e.g. bus, car"
               onChangeText={(movement_method) => setMovement_method(movement_method)}
               ></TextInput>
-            <Button title="Send Data!" 
+            <TouchableOpacity style = {styles.button}
             onPress={() => {
               sethasStopped(false);
               writeLocationData(UserId, location, current_coordinates);
               writeMovementData(UserId, last_loc, location, 10, 20, movement_method)
-              }}></Button>
-            <Button title="I didn't stop!" onPress={() => sethasStopped(false)}></Button>
+              }}><Text style = {styles.textStyle}>Send Data!</Text></TouchableOpacity>
+            <TouchableOpacity style = {styles.button} onPress={() => sethasStopped(false)}><Text style = {styles.textStyle}>I didn't stop!</Text></TouchableOpacity>
+            <View style = {styles.div1}></View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
       </View>
       <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }} 
