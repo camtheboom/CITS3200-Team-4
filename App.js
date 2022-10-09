@@ -136,10 +136,11 @@ const App = () => {
     <NavigationContainer>
       <View>
 
-      <Modal animationType='slide' visible={hasMoved}>
+      {/* <Modal animationType='slide' visible={hasMoved}>
           <View style = {styles.container}>
-            <View style = {styles.div3}></View>
-            <Text>Please fill out your reason for moving:</Text>
+            <View style = {styles.div1}></View>
+            <Text style = {styles.h1}>Please fill out your reason for moving:</Text>
+            <View style = {styles.div1}></View>
             <TextInput
               value={movement}
               placeholder="Reason for Movement"
@@ -158,7 +159,7 @@ const App = () => {
         <Modal animationType='slide' visible={hasStopped}>
           <View style = {styles.container}>
             <View style = {styles.div3}></View>
-            <Text>Please fill out where you have stopped:</Text>
+            <Text style = {styles.h1}>Please fill out where you have stopped:</Text>
             <TextInput
               value={location}
               placeholder="Where you have stopped"
@@ -178,7 +179,7 @@ const App = () => {
             <TouchableOpacity style = {styles.button} onPress={() => sethasStopped(false)}><Text style = {styles.textStyle}>I didn't stop!</Text></TouchableOpacity>
             <View style = {styles.div1}></View>
           </View>
-        </Modal>
+        </Modal> */}
 
       </View>
       <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }} 

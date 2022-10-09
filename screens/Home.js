@@ -1,9 +1,10 @@
-import { StyleSheet, Button, Alert, Modal , TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Button, Alert, Modal , TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import {View,Text} from 'react-native';
 import React, { useState } from "react";
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Notifications } from 'react-native-notifications';
+import { LinearGradient } from "expo-linear-gradient";
 
 import styles from '../styles/default.js';
 
@@ -15,21 +16,21 @@ const Stack = createNativeStackNavigator(); //Creating a stack navigator to navi
 const  HomePage = ({ navigation }) => { //Creating the default view of the home screen. Edit this if you wish to change the style of the home screen.
   
   return (
-      <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
-          <View style = {styles.div}></View>
-          <Text>Home Screen</Text>
-          <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
-              onPress={() => navigation.navigate('AutoLog')}
-              style={styles.button}>
-              <Text style={{ fontSize: 20, textAlign: 'center', color:'#fff'}}>Start Automatic tracking</Text>
-          </TouchableOpacity>
-          <TouchableOpacity //Button that, when clicked, navigates to the ManualLog screen.
-              onPress={() => navigation.navigate('ManualLog')}
-              style={styles.button}>
-              <Text style={{ fontSize: 20, color: '#fff' }}>Manual Log</Text>
-          </TouchableOpacity>
-          <View style = {styles.div}></View>
-      </View>
+    <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
+        <View style = {styles.div3}></View>
+        <Text style = {styles.h1}>Welcome!</Text>
+        <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
+            onPress={() => navigation.navigate('AutoLog')}
+            style={styles.button}>
+            <Text style={{ fontSize: 20, textAlign: 'center', color:'#fff'}}>Start Automatic tracking</Text>
+        </TouchableOpacity>
+        <TouchableOpacity //Button that, when clicked, navigates to the ManualLog screen.
+            onPress={() => navigation.navigate('ManualLog')}
+            style={styles.button}>
+            <Text style={{ fontSize: 20, color: '#fff' }}>Manual Log</Text>
+        </TouchableOpacity>
+        <View style = {styles.div3}></View>
+    </View>
   )
 }
 

@@ -26,14 +26,28 @@ const styles = StyleSheet.create({
         height: 100,
         flex: 1
     },
+      redbutton: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'red',
+        padding: 10,
+        borderRadius: 10,
+        width: 250,
+        marginTop: 10,
+        height: 100,
+        flex: 1
+    },
       modalButton: {
         borderRadius: 5,
         padding: 10,
         elevation: 2,
         width:300
     },
-    div: {
+    div3: {
         flex:3
+    },
+    div1: {
+        flex:1
     },
     startbutton: {
         justifyContent: 'center',
@@ -80,6 +94,15 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: "center"
+    },
+    h1: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginTop: 10,
+        marginBottom: 10,
+        marginLeft: 10,
+        marginRight: 10
     }
 });
 
