@@ -1,15 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView } from 'react-native';
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push } from "firebase/database";
 import firebaseConfig from "./firebase.config";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement } from "./database";
 import * as React from 'react';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, createContext, useContext } from "react";
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/core';
+import styles from './styles/default.js';
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
-const fire = initializeApp(firebaseConfig); //Initialises the database
-const UserId = 'user07';
+const app = initializeApp(firebaseConfig); //Initialises the database
+const auth = getAuth(app);
 const db = getDatabase();
 const position_time_interval = 2000; //Interval of time between recording user position. 1000 = 1 second.
 const movement_time_interval = 5000; //Interval of time between checking if user moved. 1000 = 1 second.
@@ -28,39 +32,28 @@ function getLastLocationsVisited(visited_locations, number_of_locations) {
     return (last_locations);
   }
 };
-
-//This adds an event listener to the locations visited by the user. This runs once when the app starts, and then any time a new location is visited.
-const locationRef = ref(db, 'users/' + UserId + '/locations_visited/');
-onValue(locationRef, (snapshot) => {
-  var visited_locations = listOfLocationsVisited(snapshot); //Returns an array of the names of the locations visited
-  var last_10_locations = getLastLocationsVisited(visited_locations, 10);
-
-  console.log(visited_locations); //Used for debugging, remove when locations are displayed to the user in the app
-  console.log(last_10_locations); //Same as above.
-  console.log(snapshot);
-  window.last_10_locations = last_10_locations;
-  window.last_location = getLastLocationsVisited(visited_locations, 1);
-});
-
 // Nav Bar Imports
 
 import { Component } from 'react'
-import HomeScreen from './screens/Home';
 import TravelLogScreen from './screens/TravelLog';
 import StatisticsScreen from './screens/Statistics';
 import SettingsScreen from './screens/Settings';
 import ProfileScreen from './screens/Profile';
+import ManualLog from './screens/ManualLog';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import  MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
 
-
+const Stack = createNativeStackNavigator(); //Creating a stack navigator to navigate between the screens.
+  
 
 const Tab = createMaterialBottomTabNavigator();
-
 const App = () => {
   let movement_change = 10; //A placeholder until we have access to GPS and can calculate the change in movement.
   let current_coordinates = 5; //A placeholder until we have access to GPS.
+  const [tracking, setTracking] = useState(false);
+  const [user, setUser] = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
 
   //This stores whether the user has moved or not, as well as their reason for moving
   const [hasMoved, sethasMoved] = useState(false);
@@ -74,21 +67,34 @@ const App = () => {
 
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
-    if (movement_change >= movement_threshold) {
+    if (movement_change >= movement_threshold && tracking) {
       sethasMoved(true);
       window.current_coordinates = 5000;
+    } else {
+      sethasMoved(false);
     }
   }
 
   //Checks if user has moved below the threshold. Needs to be updated with GPS.
   function checkStopped() {
-    if (movement_change <= stopped_threshold) {
+    if (movement_change <= stopped_threshold && tracking) {
       sethasStopped(true);
       window.current_coordinates = 5000;
     }
   }
 
+
   //This is used for tracking movement, and prompts the user to say why they have moved every 5 seconds.
+  const test = useEffect( () => {
+    const timer_movement = setTimeout( () => checkMovement(), movement_time_interval);
+    setMovement('');
+
+    return () => {
+      clearTimeout(timer_movement);
+  }}, [tracking]);
+
+  test;
+
   useEffect( () => {
     const timer_movement = setTimeout( () => checkMovement(), movement_time_interval);
     setMovement('');
@@ -101,6 +107,17 @@ const App = () => {
   useEffect( () => {
     const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
     setLocation('');
+    setMovement_method('');
+
+    return () => {
+      clearTimeout(timer_stopped);
+    }
+  }, [tracking]);
+
+  useEffect( () => {
+    const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
+    setLocation('');
+    setMovement_method('');
 
     return () => {
       clearTimeout(timer_stopped);
@@ -109,7 +126,7 @@ const App = () => {
 
   //This is used to continually log the users location
   useEffect( () => {
-    const timer = setInterval( () => {writePositionData(UserId, current_coordinates)}, position_time_interval);
+    const timer = setInterval( () => {writePositionData(user.uid, current_coordinates)}, position_time_interval);
 
     return () => {
       clearInterval(timer);
@@ -118,68 +135,200 @@ const App = () => {
 
   //This set of code below successfully updates with the last location visited
   const [last_loc, setLast_loc] = useState("");
-
   useEffect( () => {
-    return onValue(locationRef, querySnapShot => {
+    return onValue(ref(db, 'users/' + user.uid + '/locations_visited/'), querySnapShot => {
       let data = querySnapShot || {};
       let items = listOfLocationsVisited(data);
       let last_item = getLastLocationsVisited(items, 1);
+      console.log(items);
+      console.log(last_item);
 
       setLast_loc(last_item[0]);
       setMovement_method('');
     })
   }, []);
 
-  return (
-    <NavigationContainer>
-      <View>
+  const LoginScreen = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigation = useNavigation();
 
-      <Modal animationType='slide' visible={hasMoved}>
-        <View>
-          <View>
-            <Text>Please fill out your reason for moving:</Text>
-            <TextInput
-              value={movement}
-              placeholder="Reason for Movement"
-              onChangeText={(movement) => setMovement(movement)}
-            ></TextInput>
-            <Button title="Send Data!" 
-            onPress={() => {
-              sethasMoved(false);
-              reasonForMovement(UserId, movement, current_coordinates);
-              }}></Button>
-            <Button title="I didn't move!" onPress={() => sethasMoved(false)}></Button>
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                navigation.replace("App");
+            }
+        })
+        return unsubscribe;
+    },  [])
+
+    const handleSignUp = () => {
+        createUserWithEmailAndPassword(auth, email, password).then(userCredentials => {
+            setUser(userCredentials.user);
+            setLoggedIn(true);
+            console.log("Registered with:", user.email);
+        }) 
+        .catch(error => alert(error.message));
+    }
+
+    const handleLogin = () => {
+        signInWithEmailAndPassword(auth, email, password).then(userCredentials => {
+            setUser(userCredentials.user);
+            console.log("Logged in with:", user.email);
+        }) 
+        .catch(error => alert(error.message));
+    }
+    return(
+      <KeyboardAvoidingView behaviour="padding">
+          <View style={styles.container}>
+              <TextInput
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={text => setEmail(text)}
+                  style={styles.input}
+              />
+              <TextInput
+                  placeholder="Password"
+                  value={password}
+                  onChangeText={text => setPassword(text)}
+                  style={styles.input}
+                  secureTextEntry
+              />
           </View>
-        </View>
-      </Modal>
 
-      <Modal animationType='slide' visible={hasStopped}>
-        <View>
-          <View>
-            <Text>Please fill out where you have stopped:</Text>
-            <TextInput
-              value={location}
-              placeholder="Where you have stopped"
-              onChangeText={(location) => setLocation(location)}
-            ></TextInput>
-            <TextInput
-              value={movement_method}
-              placeholder="How you moved here - e.g. bus, car"
-              onChangeText={(movement_method) => setMovement_method(movement_method)}
-              ></TextInput>
-            <Button title="Send Data!" 
-            onPress={() => {
-              sethasStopped(false);
-              writeLocationData(UserId, location, current_coordinates);
-              writeMovementData(UserId, last_loc, location, 10, 20, movement_method)
-              }}></Button>
-            <Button title="I didn't stop!" onPress={() => sethasStopped(false)}></Button>
+          <View style={styles.container}>
+              <TouchableOpacity
+                  onPress={handleLogin}
+                  style={styles.button}
+              >
+                  <Text style={styles.button}>Login</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                  onPress={handleSignUp}
+                  style={styles.button}
+              >
+                  <Text style={styles.button}>Register</Text>
+              </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
+      </KeyboardAvoidingView>
+    )
+  };
 
-      </View>
-      <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }} 
+  const SignOut = () => {
+    const navigation = useNavigation();
+    const handleSignOut = () => {
+      signOut(auth).then( () => {
+        navigation.replace("Login")
+      })
+      .catch(error => alert(error.message));
+    };
+
+    return (
+      <KeyboardAvoidingView behaviour="padding">
+          <View style={styles.container}>
+              <TouchableOpacity
+                  onPress={handleSignOut}
+                  style={styles.button}
+              >
+                  <Text style={styles.button}>Logout</Text>
+              </TouchableOpacity>
+          </View>
+      </KeyboardAvoidingView>
+    )
+  }
+
+
+  const AutoLog = () => { //AutoLog view
+    const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main AutoLog page.
+
+    return (
+        
+
+        <View style={styles.centeredView} >
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
+            }}
+          >
+            <View style={styles.container}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>
+                    ATTENTION: AutoLog will log your location data every minute. Click START on the following page to begin location tracking.
+                    </Text>
+                <Pressable
+                  style={[styles.modalButton, styles.buttonClose]}
+                  onPress={() => setModalVisible(!modalVisible)}
+                >
+                  <Text style={styles.textStyle}>OK</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
+          <View style = {styles.div}></View>
+          <View style = {styles.div}></View>
+          <View style = {styles.div}></View>
+          <TouchableOpacity style ={styles.startbutton}>
+          <Pressable onPress={() => setTracking(true)}>
+            <Text style={styles.textStyle}>START</Text>
+          </Pressable>
+          </TouchableOpacity>
+  
+          <View style = {styles.div}></View>
+  
+          <TouchableOpacity style ={styles.startbutton}>
+          <Pressable onPress={() => setTracking(false)}>
+            <Text style={styles.textStyle}>STOP</Text>
+          </Pressable>
+          </TouchableOpacity>
+          <View style = {styles.div}></View>
+          
+        </View>
+      );
+    };
+
+    const  HomePage = ({ navigation }) => { //Creating the default view of the home screen. Edit this if you wish to change the style of the home screen.
+  
+      return (
+          <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
+              <View style = {styles.div}></View>
+              <Text>Home Screen</Text>
+              <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
+                  onPress={() => navigation.navigate('AutoLog')}
+                  style={styles.button}>
+                  <Text style={{ fontSize: 20, textAlign: 'center', color:'#fff'}}>Start Automatic tracking</Text>
+              </TouchableOpacity>
+              <TouchableOpacity //Button that, when clicked, navigates to the ManualLog screen.
+                  onPress={() => navigation.navigate('ManualLog')}
+                  style={styles.button}>
+                  <Text style={{ fontSize: 20, color: '#fff' }}>Manual Log</Text>
+              </TouchableOpacity>
+              <View style = {styles.div}></View>
+          </View>
+      )
+    };
+      
+    const HomeScreen = () => { //Combining the three views into a stack to be navigated between.
+      return (
+          <NavigationContainer independent = {true}>
+            <Stack.Navigator initialRouteName="Home">
+  
+              <Stack.Screen name="Home" component={HomePage} />
+              <Stack.Screen name="AutoLog" component={AutoLog} />
+              <Stack.Screen name="ManualLog" component={ManualLog} />
+                
+            </Stack.Navigator>
+          </NavigationContainer>
+    
+            // 
+      );
+    };
+
+    function HomeTabs() {
+      return(
+        <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }} 
       activeColor="white" >
         <Tab.Screen name="Home" component={HomeScreen}            //Home Screen
         options={{
@@ -213,92 +362,70 @@ const App = () => {
   size={26}/>
           ),
       }}/>
+      <Tab.Screen name="SignOut" component={SignOut}            //Home Screen
+        options={{
+          tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="home" color={color} size={26}/>
+          ),
+      }}/>
       </Tab.Navigator>
+      )
+    }
+  
+  return (
+    <NavigationContainer>
+      <View>
+      <Modal animationType='slide' visible={hasMoved && tracking}>
+        <View>
+          <View>
+            <Text>Please fill out your reason for moving:</Text>
+            <TextInput
+              value={movement}
+              placeholder="Reason for Movement"
+              onChangeText={(movement) => setMovement(movement)}
+            ></TextInput>
+            <Button title="Send Data!" 
+            onPress={() => {
+              sethasMoved(false);
+              reasonForMovement(user.uid, movement, current_coordinates);
+              }}></Button>
+            <Button title="I didn't move!" onPress={() => sethasMoved(false)}></Button>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal animationType='slide' visible={hasStopped && tracking}>
+        <View>
+          <View>
+            <Text>Please fill out where you have stopped:</Text>
+            <TextInput
+              value={location}
+              placeholder="Where you have stopped"
+              onChangeText={(location) => setLocation(location)}
+            ></TextInput>
+            <TextInput
+              value={movement_method}
+              placeholder="How you moved here - e.g. bus, car"
+              onChangeText={(movement_method) => setMovement_method(movement_method)}
+              ></TextInput>
+            <Button title="Send Data!" 
+            onPress={() => {
+              sethasStopped(false);
+              writeLocationData(user.uid, location, current_coordinates);
+              writeMovementData(user.uid, last_loc, location, 10, 20, movement_method)
+              }}></Button>
+            <Button title="I didn't stop!" onPress={() => sethasStopped(false)}></Button>
+          </View>
+        </View>
+      </Modal>
+
+      </View>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="App" component={HomeTabs} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
 export default App
-
-/* 
-  Code below is for testing the database with firebase. un comment section below to test and also test other code
-*/
-
-
-
-// const App = () => {
-
-//   //This is used to store whether the user has agreed to have their data stored or not.
-//   const [isOKAY, setisOKAY] = useState(false);
-
-//   //Runs SQL commands to create the tables for the database if they do not already exist.
-//   //Displays a warning that the app will collect personal data.
-//   const Warning = () =>
-//     Alert.alert(
-//       "Data Collection Alert",
-//       "This app may collect personal data such as location and heart rate.",
-//       [
-//         { text: "Cancel", onPress: () => setisOKAY(false)},
-//         { text: "OK", onPress: () => setisOKAY(true)}
-//       ]
-//     );
-
-//   //This creates the view that the user sees when they open the app
-//   return (
-//     <View style={styles.container}>
-//       <Modal animationType='slide' visible={isOKAY}>
-//         <View style={styles.centeredView}>
-//           <View style={styles.modalView}>
-//             <Text>Please fill out the details below:</Text>
-//             <TextInput
-//               style={styles.input}
-//               defaultValue = "First Name"
-//             ></TextInput>
-//             <TextInput
-//               style={styles.input}
-//               defaultValue = "Last Name"
-//             ></TextInput>
-//             <Button title = "Go back" onPress = {() => setisOKAY(false)}></Button>
-//           </View>
-//         </View>
-//       </Modal>
-//       <Text>Welcome to the Human Movement Mapping Project App!</Text>
-//       <Text></Text>
-//       <Button title = "Send Data!" onPress={ () => {writeUserData("user01", "Cam", "fake@fake.com", "google.com")}}></Button>
-//       <Button title = "Send Location Data!" onPress={ () => {writeLocationData("user04", "Gym", 10)}}></Button>
-//       <Button title = "Send Position Data!" onPress={ () => {writePositionData("user04", 1000)}}></Button>
-//       <StatusBar style="auto" />
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   input: {
-//     height:40,
-//     borderColor: 'black',
-//     borderWidth: 2
-//   },
-//   button: {
-//     alignItems: 'center',
-//     backgroundColor: '#A9A9A9',
-//     padding: 10,
-//     borderRadius: 10,
-//     width: 200,
-//     margin: 10,
-//     height: 100,
-//     flex: 1
-//   }
-// });
-
-// //export default App
-
-// hex code for grey
-// #808080
-// Bit lighter
-// #A9A9A9
