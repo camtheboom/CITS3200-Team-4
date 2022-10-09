@@ -83,6 +83,11 @@ const App = () => {
     }
   }
 
+  function writePositionDataIfTracking() {
+    if(tracking) {
+      writePositionData(user.uid, current_coordinates)
+    }
+  }
 
   //This is used for tracking movement, and prompts the user to say why they have moved every 5 seconds.
   const test = useEffect( () => {
@@ -126,7 +131,7 @@ const App = () => {
 
   //This is used to continually log the users location
   useEffect( () => {
-    const timer = setInterval( () => {writePositionData(user.uid, current_coordinates)}, position_time_interval);
+    const timer = setInterval( () => {writePositionDataIfTracking()}, position_time_interval);
 
     return () => {
       clearInterval(timer);
@@ -180,7 +185,7 @@ const App = () => {
     }
     return(
       <KeyboardAvoidingView behaviour="padding">
-          <View style={styles.container}>
+          <View>
               <TextInput
                   placeholder="Email"
                   value={email}
@@ -196,18 +201,16 @@ const App = () => {
               />
           </View>
 
-          <View style={styles.container}>
+          <View>
               <TouchableOpacity
                   onPress={handleLogin}
-                  style={styles.button}
               >
-                  <Text style={styles.button}>Login</Text>
+                  <Text>Login</Text>
               </TouchableOpacity>
               <TouchableOpacity
                   onPress={handleSignUp}
-                  style={styles.button}
               >
-                  <Text style={styles.button}>Register</Text>
+                  <Text>Register</Text>
               </TouchableOpacity>
           </View>
       </KeyboardAvoidingView>
