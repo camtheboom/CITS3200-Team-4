@@ -30,8 +30,8 @@ const SettingsPage = ({ navigation }) => { //Creating the default view of the ho
   
   return (
     <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
-        <View style = {styles.div}></View>
-        <Text>Settings</Text>
+        <View style = {styles.div3}></View>
+        <Text style = {styles.h1}>Settings</Text>
         <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
             onPress={() => notifyMessage('Downloading...')}
             style={styles.button}>
@@ -42,7 +42,7 @@ const SettingsPage = ({ navigation }) => { //Creating the default view of the ho
             style={styles.button}>
             <Text style={{ fontSize: 20, color: '#fff' }}>Notification Settings</Text>
         </TouchableOpacity>
-        <View style = {styles.div}></View>
+        <View style = {styles.div3}></View>
     </View>
   )
 }
