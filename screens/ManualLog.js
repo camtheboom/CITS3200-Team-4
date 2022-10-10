@@ -168,7 +168,7 @@ export default ManualLog = () => {
 
     textBoxLocation: {
         // position: "absolute",
-        top: -220,
+        top: -170,
         flexwrap: "row"
         // alignItems: "center"
     },
