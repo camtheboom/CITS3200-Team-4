@@ -1,27 +1,30 @@
-import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
-
-function TravelLog() {
+import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { useRoute } from '@react-navigation/native';
+  
+const TravelLog = () => {
+  const route = useRoute();
+  
   return (
-    <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
-      <Text>Travel Log</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>{route.params.start}</Text>
     </View>
-  )
-}
+  );
+};
+
+export default TravelLog;
 
 const styles = StyleSheet.create({
-      log: {
-        top: 0, 
-        position: 'absolute', 
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }
-    })
-export default TravelLog
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: 'green',
+    marginTop: 50,
+  },
+});
