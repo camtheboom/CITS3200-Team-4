@@ -7,7 +7,7 @@ const TravelLog = () => {
   
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{route.params.start}</Text>
+      <Text style={styles.title}>please work</Text>
     </View>
   );
 };
