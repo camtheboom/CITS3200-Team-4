@@ -16,7 +16,7 @@ const  HomePage = ({ navigation }) => { //Creating the default view of the home 
   
   return (
       <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
-          <View style = {styles.div}></View>
+          <View style = {styles.div3}></View>
           <Text>Home Screen</Text>
           <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
               onPress={() => navigation.navigate('AutoLog')}
@@ -28,7 +28,7 @@ const  HomePage = ({ navigation }) => { //Creating the default view of the home 
               style={styles.button}>
               <Text style={{ fontSize: 20, color: '#fff' }}>Manual Log</Text>
           </TouchableOpacity>
-          <View style = {styles.div}></View>
+          <View style = {styles.div3}></View>
       </View>
   )
 }

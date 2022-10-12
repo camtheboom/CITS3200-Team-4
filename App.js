@@ -184,7 +184,7 @@ const App = () => {
         .catch(error => alert(error.message));
     }
     return(
-      <KeyboardAvoidingView behaviour="padding">
+      <View>
           <View>
               <TextInput
                   placeholder="Email"
@@ -213,7 +213,8 @@ const App = () => {
                   <Text>Register</Text>
               </TouchableOpacity>
           </View>
-      </KeyboardAvoidingView>
+        </View>
+      
     )
   };
 
@@ -227,16 +228,23 @@ const App = () => {
     };
 
     return (
-      <KeyboardAvoidingView behaviour="padding">
           <View style={styles.container}>
+            <View style={styles.div3}></View>
+            <TouchableOpacity
+                  onPress={() => alert('Set up profile info under here')}
+                  style={styles.button}
+              >
+                  <Text style={styles.textStyle}>User Info</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                   onPress={handleSignOut}
                   style={styles.button}
               >
-                  <Text style={styles.button}>Logout</Text>
+                  <Text style={styles.textStyle}>Logout</Text>
               </TouchableOpacity>
+              
+              <View style={styles.div3}></View>
           </View>
-      </KeyboardAvoidingView>
     )
   }
 
@@ -296,7 +304,7 @@ const App = () => {
   
       return (
           <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
-              <View style = {styles.div}></View>
+              <View style = {styles.div3}></View>
               <Text>Home Screen</Text>
               <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
                   onPress={() => navigation.navigate('AutoLog')}
@@ -308,7 +316,7 @@ const App = () => {
                   style={styles.button}>
                   <Text style={{ fontSize: 20, color: '#fff' }}>Manual Log</Text>
               </TouchableOpacity>
-              <View style = {styles.div}></View>
+              <View style = {styles.div3}></View>
           </View>
       )
     };
@@ -378,49 +386,50 @@ const App = () => {
   return (
     <NavigationContainer>
       <View>
-      <Modal animationType='slide' visible={hasMoved && tracking}>
-        <View>
-          <View>
-            <Text>Please fill out your reason for moving:</Text>
-            <TextInput
-              value={movement}
-              placeholder="Reason for Movement"
-              onChangeText={(movement) => setMovement(movement)}
-            ></TextInput>
-            <Button title="Send Data!" 
-            onPress={() => {
-              sethasMoved(false);
-              reasonForMovement(user.uid, movement, current_coordinates);
-              }}></Button>
-            <Button title="I didn't move!" onPress={() => sethasMoved(false)}></Button>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal animationType='slide' visible={hasStopped && tracking}>
-        <View>
-          <View>
-            <Text>Please fill out where you have stopped:</Text>
-            <TextInput
-              value={location}
-              placeholder="Where you have stopped"
-              onChangeText={(location) => setLocation(location)}
-            ></TextInput>
-            <TextInput
-              value={movement_method}
-              placeholder="How you moved here - e.g. bus, car"
-              onChangeText={(movement_method) => setMovement_method(movement_method)}
+        <Modal animationType='slide' visible={hasMoved}>
+            <View style = {styles.container}>
+              <View style = {styles.div1}></View>
+              <Text style = {styles.h1}>Please fill out your reason for moving:</Text>
+              <View style = {styles.div1}></View>
+              <TextInput
+                value={movement}
+                placeholder="Reason for Movement"
+                onChangeText={(movement) => setMovement(movement)}
               ></TextInput>
-            <Button title="Send Data!" 
-            onPress={() => {
-              sethasStopped(false);
-              writeLocationData(user.uid, location, current_coordinates);
-              writeMovementData(user.uid, last_loc, location, 10, 20, movement_method)
-              }}></Button>
-            <Button title="I didn't stop!" onPress={() => sethasStopped(false)}></Button>
-          </View>
-        </View>
-      </Modal>
+              <TouchableOpacity style = {styles.button} 
+              onPress={() => {
+                sethasMoved(false);
+                reasonForMovement(UserId, movement, current_coordinates);
+                }}><Text style = {styles.textStyle}>Send data!</Text></TouchableOpacity>
+              <TouchableOpacity style = {styles.button} onPress={() => sethasMoved(false)}><Text style = {styles.textStyle}>I didn't move!</Text></TouchableOpacity>
+              <View style = {styles.div1}></View> 
+            </View>
+          </Modal>
+
+          <Modal animationType='slide' visible={hasStopped}>
+            <View style = {styles.container}>
+              <View style = {styles.div3}></View>
+              <Text style = {styles.h1}>Please fill out where you have stopped:</Text>
+              <TextInput
+                value={location}
+                placeholder="Where you have stopped"
+                onChangeText={(location) => setLocation(location)}
+              ></TextInput>
+              <TextInput
+                value={movement_method}
+                placeholder="How you moved here - e.g. bus, car"
+                onChangeText={(movement_method) => setMovement_method(movement_method)}
+                ></TextInput>
+              <TouchableOpacity style = {styles.button}
+              onPress={() => {
+                sethasStopped(false);
+                writeLocationData(UserId, location, current_coordinates);
+                writeMovementData(UserId, last_loc, location, 10, 20, movement_method)
+                }}><Text style = {styles.textStyle}>Send Data!</Text></TouchableOpacity>
+              <TouchableOpacity style = {styles.button} onPress={() => sethasStopped(false)}><Text style = {styles.textStyle}>I didn't stop!</Text></TouchableOpacity>
+              <View style = {styles.div1}></View>
+            </View>
+          </Modal>
 
       </View>
       <Stack.Navigator initialRouteName="Login">
