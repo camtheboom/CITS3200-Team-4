@@ -10,6 +10,8 @@ import { useEffect, useState, useRef, createContext, useContext } from "react";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/core';
 import styles from './styles/default.js';
+import * as TaskManager from "expo-task-manager"
+import * as Location from "expo-location"
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 const app = initializeApp(firebaseConfig); //Initialises the database
@@ -291,6 +293,7 @@ const App = () => {
         </View>
       );
     };
+
 
     const  HomePage = ({ navigation }) => { //Creating the default view of the home screen. Edit this if you wish to change the style of the home screen.
   
