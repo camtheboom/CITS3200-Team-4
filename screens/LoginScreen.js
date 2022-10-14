@@ -46,6 +46,7 @@ const LoginScreen = () => {
     return(
         <KeyboardAvoidingView behaviour="padding">
             <View style={styles.container}>
+                <View style={styles.div3}></View>
                 <TextInput
                     placeholder="Email"
                     value={email}
