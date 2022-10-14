@@ -184,34 +184,37 @@ const App = () => {
         .catch(error => alert(error.message));
     }
     return(
-      <View>
-          <View>
+      <View style = {styles.container}>
+          <View style = {styles.container}>
               <TextInput
                   placeholder="Email"
                   value={email}
                   onChangeText={text => setEmail(text)}
-                  style={styles.input}
+                  style={styles.logInput}
               />
               <TextInput
                   placeholder="Password"
                   value={password}
                   onChangeText={text => setPassword(text)}
-                  style={styles.input}
+                  style={styles.logInput}
                   secureTextEntry
               />
           </View>
 
-          <View>
+          <View style = {styles.container}>
               <TouchableOpacity
-                  onPress={handleLogin}
+                  onPress={handleLogin} 
+                  style = {styles.button}
               >
-                  <Text>Login</Text>
+                  <Text style = {styles.textStyle}>Login</Text>
               </TouchableOpacity>
               <TouchableOpacity
                   onPress={handleSignUp}
+                  style = {styles.button}
               >
-                  <Text>Register</Text>
+                  <Text style = {styles.textStyle}>Register</Text>
               </TouchableOpacity>
+              <View style = {styles.div3}></View>
           </View>
         </View>
       

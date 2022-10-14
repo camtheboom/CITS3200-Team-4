@@ -106,6 +106,22 @@ const styles = StyleSheet.create({
         marginRight: 10,
         // blue colour
         color: '#202b73'
+    },
+    logInput: {
+        height: 40,
+        borderColor: 'black',
+        borderWidth: 2,
+        width: 300,
+        marginTop: 10,
+        marginBottom: 10,
+        marginLeft: 10,
+        marginRight: 10,
+        borderRadius: 10,
+        padding: 10,
+        height: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFF'
     }
 });
 
