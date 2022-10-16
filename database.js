@@ -1,4 +1,4 @@
-import { getDatabase, ref, onValue, set, push } from "firebase/database";
+import { getDatabase, ref, onValue, set, push, get, child } from "firebase/database";
 
 function writeUserData(UserId, name, email, imageUrl) {
     const db = getDatabase();
@@ -57,6 +57,19 @@ function listOfLocationsVisited(snapshot){
     return(visited_locations);
 };
 
+function getManualLog(UserId){
+  const dbRef = ref(getDatabase());
+  get(child(dbRef, `users/${UserId}/manual_log`)).then((snapshot) => {
+    if (snapshot.exists()) {
+      console.log(snapshot.val());
+    } else {
+      console.log("No data avaliable")
+    }
+  }).catch((error) => {
+    console.log(error);
+  });
+}
+
 //This function saves to the database a starting and finishing location, and the method of transport used to move between them (E.g. car, walking, bus, etc.)
 function writeMovementData(UserId, start_location, end_location, start_coordinates, end_coordinates, method_of_movement){
   const db = getDatabase();
@@ -83,4 +96,19 @@ function reasonForMovement(UserId, reason, coordinates){
   });
 };
 
-export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement };
+function writeManualLog(UserId, start_location, end_location, description, method_of_movement){
+  const db = getDatabase();
+  const reference = ref(db, 'users/' + UserId + '/manual_log');
+  const pushReference = push(reference);
+
+  set (pushReference, {
+    start_location: start_location,
+    end_location: end_location,
+    description: description,
+    method_of_movement: method_of_movement
+  });
+};
+
+
+
+export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog, getManualLog };

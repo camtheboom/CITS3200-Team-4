@@ -1,17 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, SafeAreaView, ScrollView,  } from 'react-native';
+import SelectDropdown from 'react-native-select-dropdown'
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, push } from "firebase/database";
+import { getDatabase, ref, onValue, set, push, child } from "firebase/database";
 import firebaseConfig from "./firebase.config";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement } from "./database";
+import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog, getManualLog } from "./database";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as React from 'react';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useEffect, useState, useRef, createContext, useContext } from "react";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/core';
 import styles from './styles/default.js';
 import * as TaskManager from "expo-task-manager"
 import * as Location from "expo-location"
+
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 const app = initializeApp(firebaseConfig); //Initialises the database
@@ -41,7 +45,6 @@ import TravelLogScreen from './screens/TravelLog';
 import StatisticsScreen from './screens/Statistics';
 import SettingsScreen from './screens/Settings';
 import ProfileScreen from './screens/Profile';
-import ManualLog from './screens/ManualLog';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import  MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -163,6 +166,7 @@ const App = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
+                setUser(user);
                 navigation.replace("App");
             }
         })
@@ -242,6 +246,108 @@ const App = () => {
     )
   }
 
+  const ManualLog = () => {
+
+    // const  ManualPage = ({ navigation }) => { 
+    
+      const [start, setStart] = useState('');
+      const [last, setLast] = useState('');
+      const [description, setDescription] = useState('');
+      const [transport, setTransport] = useState('');
+    
+        const modes = [
+          'Car',
+          'Walk',
+          'Ride',
+          'Train',
+          'Bus'
+        ];
+    
+        const renderHeader = () => {
+          return (
+            <View style={[styles.header, styles.shadow]}>
+              <Text style={styles.headerTitle}>{'What did you do?'}</Text>
+            </View>
+          );
+        };
+      
+        return (
+          <SafeAreaView style={styles.saveAreaViewContainer}>
+            <StatusBar backgroundColor="#FFF" barStyle="dark-content" />
+            <View style={styles.viewContainer}>
+              {renderHeader()}
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                alwaysBounceVertical={false}
+                contentContainerStyle={styles.scrollViewContainer}>
+    
+                <SelectDropdown
+                  data={modes}
+    
+                  onSelect={(selectedItem, index) => {
+                    setTransport(selectedItem);
+                    console.log(selectedItem, index);
+                  }}
+                  defaultButtonText={'Select Mode of Transport'}
+                  buttonTextAfterSelection={(selectedItem, index) => {
+                    return selectedItem;
+                  }}
+                  rowTextForSelection={(item, index) => {
+                    return item;
+                  }}
+                  buttonStyle={styles.dropdown1BtnStyle}
+                  buttonTextStyle={styles.dropdown1BtnTxtStyle}
+                  renderDropdownIcon={isOpened => {
+                    return <FontAwesome name={isOpened ? 'chevron-up' : 'chevron-down'} color={'#444'} size={18} />;
+                  }}
+                  dropdownIconPosition={'right'}
+                  dropdownStyle={styles.dropdown1DropdownStyle}
+                  rowStyle={styles.dropdown1RowStyle}
+                  rowTextStyle={styles.dropdown1RowTxtStyle}
+                />
+              </ScrollView>
+            </View>
+            <View style={styles.textBoxLocation}>
+              <View>
+                <View>
+                  <TextInput 
+                  placeholder="Start Location" 
+                  style={{justifyContent: 'flex-start',}} 
+                  value={start} 
+                  onChangeText={(start) => setStart(start)}/>
+                </View>
+                <View>
+                  <TextInput 
+                  placeholder="End Location" 
+                  style={{justifyContent: 'flex-end',}} 
+                  value={last}
+                  onChangeText={(last) => setLast(last)}/>
+                </View>
+                <View>
+                  <TextInput 
+                  placeholder="Description" 
+                  multiline 
+                  value={description}
+                  onChangeText={(description) => setDescription(description)}/>
+                </View>
+                <View>
+                <Button
+            title="Submit"
+            color="#f194ff"
+            onPress={() => {
+              writeManualLog(user.uid, start, last, description, transport);
+              getManualLog(user.uid); 
+            }}
+          />  
+                </View>
+            </View>
+            </View>
+          </SafeAreaView>
+          
+    
+        );
+            
+      };
 
   const AutoLog = () => { //AutoLog view
     const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main AutoLog page.

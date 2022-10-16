@@ -3,6 +3,7 @@
 
 import React, { FC, useState } from "react";
 import { TextInput } from 'react-native-paper';
+import { writeManualLog} from '../database';
 
 
 import SelectDropdown from 'react-native-select-dropdown'
@@ -27,15 +28,11 @@ export default ManualLog = () => {
 
 // const  ManualPage = ({ navigation }) => { 
 
-  const [start, las, description, setMessage] = useState('');
+  const [start, setStart] = useState('');
+  const [last, setLast] = useState('');
+  const [description, setDescription] = useState('');
+  const [transport, setTransport] = useState('');
   const navigation = useNavigation();
-  const goToTravelLog = () => {
-    navigation.navigate('TravelLog', {
-      start,
-      las,
-      description,
-    });
-  };
 
     const modes = [
       'Car',
@@ -46,8 +43,6 @@ export default ManualLog = () => {
       'Bus'
  
     ];
-    const [text, setText] = React.useState("");
-
 
     const renderHeader = () => {
         
@@ -74,6 +69,7 @@ export default ManualLog = () => {
               data={modes}
 
               onSelect={(selectedItem, index) => {
+                setTransport(selectedItem);
                 console.log(selectedItem, index);
               }}
               defaultButtonText={'Select Mode of Transport'}
@@ -99,21 +95,33 @@ export default ManualLog = () => {
         <View style={styles.textBoxLocation}>
           <View>
             <View>
-              <TextInput placeholder="Start Location" style={{justifyContent: 'flex-start',}} value={start}/>
+              <TextInput 
+              placeholder="Start Location" 
+              style={{justifyContent: 'flex-start',}} 
+              value={start} 
+              onChangeText={(start) => setStart(start)}/>
             </View>
             <View>
-              <TextInput placeholder="End Location" style={{justifyContent: 'flex-end',}} value={las}/>
+              <TextInput 
+              placeholder="End Location" 
+              style={{justifyContent: 'flex-end',}} 
+              value={last}
+              onChangeText={(last) => setLast(last)}/>
             </View>
             <View>
 
-              <TextInput label="Description" multiline value={description}/>
+              <TextInput 
+              label="Description" 
+              multiline 
+              value={description}
+              onChangeText={(description) => setDescription(description)}/>
             
             </View>
             <View>
             <Button
         title="Submit"
         color="#f194ff"
-        onPress={goToTravelLog}
+
       />  
             </View>
         </View>
