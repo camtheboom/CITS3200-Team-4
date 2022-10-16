@@ -102,7 +102,6 @@ const App = () => {
   const [moveCount, setMoveCount] = useState(0);
 
   //This is used for tracking movement, and prompts the user to say why they have moved every 5 seconds.
-
   useEffect( () => {
     const timer_movement = setTimeout( () => {
       checkMovement();
@@ -344,36 +343,18 @@ const App = () => {
       };
 
   const AutoLog = () => { //AutoLog view
-    const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main AutoLog page.
 
     return (
         
 
         <View style={styles.centeredView} >
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-              setModalVisible(!modalVisible);
-            }}
-          >
-            <View style={styles.container}>
-              <View style={styles.modalView}>
-                <Text style={styles.modalText}>
-                    ATTENTION: AutoLog will log your location data every minute. Click START on the following page to begin location tracking.
-                    </Text>
-                <Pressable
-                  style={[styles.modalButton, styles.buttonClose]}
-                  onPress={() => setModalVisible(!modalVisible)}
-                >
-                  <Text style={styles.textStyle}>OK</Text>
-                </Pressable>
-              </View>
-            </View>
-          </Modal>
           <View style = {styles.div}></View>
           <View style = {styles.div}></View>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>
+                    ATTENTION: AutoLog will log your location data every minute. Click START to begin location tracking.
+            </Text>
+          </View>
           <View style = {styles.div}></View>
           <TouchableOpacity style ={styles.startbutton}>
           <Pressable onPress={() => setTracking(true)}>
@@ -553,29 +534,22 @@ const App = () => {
       return(
         <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }} 
       activeColor="white" >
-        <Tab.Screen name="Home" component={HomeScreen}            //Home Screen
+        <Tab.Screen name="Auto Log" component={AutoLog}            //Home Screen
         options={{
           tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="home" color={color} size={26}/>
           ),
       }}/>
-        <Tab.Screen name="Settings" component={SettingsScreen}      //Settings Screen
+      <Tab.Screen name="Manual Log" component={ManualLog}            //Home Screen
         options={{
           tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="cog-outline" color={color} size={26}/>
+              <MaterialCommunityIcons name="home" color={color} size={26}/>
           ),
       }}/>
         <Tab.Screen name="TravelLog" component={TravelLogScreen}    // TravellogScreen
         options={{
           tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="map" color={color} size={26}/>
-          ),
-      }}/>
-        <Tab.Screen name="Statistics" component={StatisticsScreen}   // Statistics Screen
-        options={{
-          tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="chart-line-variant" color={color} 
-  size={26}/>
           ),
       }}/>
         <Tab.Screen name="Profile" component={ProfileScreen}   // Profile Screen
