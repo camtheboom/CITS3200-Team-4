@@ -48,6 +48,7 @@ import ProfileScreen from './screens/Profile';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import  MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
+import { setBadgeCountAsync } from 'expo-notifications';
 
 const Stack = createNativeStackNavigator(); //Creating a stack navigator to navigate between the screens.
   
@@ -72,6 +73,7 @@ const App = () => {
 
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
+    console.log('Checking for movement...')
     if (movement_change >= movement_threshold && tracking) {
       sethasMoved(true);
       window.current_coordinates = 5000;
@@ -82,6 +84,7 @@ const App = () => {
 
   //Checks if user has moved below the threshold. Needs to be updated with GPS.
   function checkStopped() {
+    console.log('Checking if stopped...')
     if (movement_change <= stopped_threshold && tracking) {
       sethasStopped(true);
       window.current_coordinates = 5000;
@@ -94,45 +97,36 @@ const App = () => {
     }
   }
 
+  //This is used to ensure that we keep checking for if the user has stopped/moved
+  const [stopCount, setStopCount] = useState(0);
+  const [moveCount, setMoveCount] = useState(0);
+
   //This is used for tracking movement, and prompts the user to say why they have moved every 5 seconds.
-  const test = useEffect( () => {
-    const timer_movement = setTimeout( () => checkMovement(), movement_time_interval);
-    setMovement('');
-
-    return () => {
-      clearTimeout(timer_movement);
-  }}, [tracking]);
-
-  test;
 
   useEffect( () => {
-    const timer_movement = setTimeout( () => checkMovement(), movement_time_interval);
+    const timer_movement = setTimeout( () => {
+      checkMovement();
+      setMoveCount(moveCount + 1);
+    }, movement_time_interval);
     setMovement('');
 
     return () => {
       clearTimeout(timer_movement);
-  }}, [hasMoved]);
+  }}, [moveCount]);
 
   //This is used for tracking locations, and prompts the user to say why they have stopped every 10 seconds.
   useEffect( () => {
-    const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
+    const timer_stopped = setTimeout( () => {
+      checkStopped();
+      setStopCount(stopCount + 1);
+    }, stopped_time_interval);
     setLocation('');
     setMovement_method('');
 
     return () => {
       clearTimeout(timer_stopped);
     }
-  }, [tracking]);
-
-  useEffect( () => {
-    const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
-    setLocation('');
-    setMovement_method('');
-
-    return () => {
-      clearTimeout(timer_stopped);
-    }
-  }, [hasStopped]);
+  }, [stopCount]);
 
   //This is used to continually log the users location
   useEffect( () => {
