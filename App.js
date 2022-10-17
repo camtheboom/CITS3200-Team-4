@@ -41,7 +41,7 @@ function getLastLocationsVisited(visited_locations, number_of_locations) {
 // Nav Bar Imports
 
 import { Component } from 'react'
-import TravelLogScreen from './screens/TravelLog';
+//import TravelLogScreen from './screens/TravelLog';
 import StatisticsScreen from './screens/Statistics';
 import SettingsScreen from './screens/Settings';
 import ProfileScreen from './screens/Profile';
@@ -434,6 +434,39 @@ const App = () => {
         </View>
       );
     };
+
+// TRAVEL LOG SCREEN
+
+    const TravelLog = () =>{
+    // export default function TravelLog() {
+      const newTaskData = [{
+        title: "Past Logs",
+        data: manualLog
+      }];
+      return (
+        <View style={styles.container}>
+          <SectionList
+            sections={[...newTaskData]}
+            renderItem={({item})=>(
+                <Text style={styles.taskItem}> 
+                Mode of Transport: {item.method_of_movement} {'\n'}
+                Start Location: {item.start_location} {'\n'}
+                End Location: {item.end_location} {'\n'}
+                Description: {item.desciption} 
+                </Text>
+            )}
+            
+            renderSectionHeader={({section})=>(
+              <Text style={styles.taskTitle}>{section.title}</Text>
+            )}
+            keyExtractor={item=>item.id}
+            stickySectionHeadersEnabled
+          />
+        </View>
+      );
+    }
+
+// ^^^^^^
  //location tracking stuff
     const LOCATION_TASK_NAME = "LOCATION_TASK_NAME"
     let foregroundSubscription = null
@@ -606,7 +639,7 @@ const App = () => {
               <MaterialCommunityIcons name="home" color={color} size={26}/>
           ),
       }}/>
-        <Tab.Screen name="TravelLog" component={TravelLogScreen}    // TravellogScreen
+        <Tab.Screen name="TravelLog" component={TravelLog}    // TravellogScreen
         options={{
           tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="map" color={color} size={26}/>
