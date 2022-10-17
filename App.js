@@ -185,6 +185,14 @@ const App = () => {
         }) 
         .catch(error => alert(error.message));
     }
+
+    const handleSignOut = () => {
+      signOut(auth).then( () => {
+        navigation.replace("Login")
+      })
+      .catch(error => alert(error.message));
+    };
+
     return(
       <View style = {styles.container}>
           <View style = {styles.container}>
@@ -205,13 +213,15 @@ const App = () => {
 
           <View style = {styles.container}>
               <TouchableOpacity
-                  onPress={handleLogin} 
+                  onPress={() => handleLogin()} 
                   style = {styles.button}
               >
                   <Text style = {styles.textStyle}>Login</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                  onPress={() => setModalVisible(!modalVisible)}
+              // on press, set modal to visible and handle sign in
+                  onPress={() => {handleSignUp(); setModalVisible(!modalVisible);}}  
+
                   style = {styles.button}
               >
                   <Text style = {styles.textStyle}>Register</Text>
@@ -233,24 +243,22 @@ const App = () => {
                     Welcome to the Human Movement Mapping research project! Click yes below to confirm this is your first time logging into the app.
                     If this is not your first time logging into the application, click CANCEL.
                     </Text>
-                <Pressable
-                  style={[styles.modalButton, styles.buttonClose]}
+                <TouchableOpacity
+                  style={styles.startbutton}
                   // On press, change the value of modalVisible
-                  onPress={() => {
-                    setModalVisible(!modalVisible);
-                    handleSignUp();}}
+                  onPress={() => setModalVisible(!modalVisible)}
                 >
                   <Text style={styles.textStyle}>CONFIRM</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.modalbutton, styles.buttonClose]}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.redbutton}
                   // on press, handle sign up and change visible to false
                   onPress={() => {
                     setModalVisible(!modalVisible);
                   }}
                 >
                   <Text style={styles.textStyle}>CANCEL</Text>
-                </Pressable>
+                </TouchableOpacity>
               </View>
             </View>
           </Modal>
