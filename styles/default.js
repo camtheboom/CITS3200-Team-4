@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
       button: {
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#A9A9A9',
+        backgroundColor: '#202b73',
         padding: 10,
         borderRadius: 20,
         width: 250,
@@ -148,3 +148,6 @@ const styles = StyleSheet.create({
 });
 
 export default styles;
+
+// navy colour hex code
+// #202b73
