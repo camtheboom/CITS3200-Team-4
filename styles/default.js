@@ -10,6 +10,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    bigcontainer: {
+        flex: 2,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
       input: {
         height:40,
         borderColor: 'black',
@@ -18,9 +24,9 @@ const styles = StyleSheet.create({
       button: {
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#A9A9A9',
+        backgroundColor: '#202b73',
         padding: 10,
-        borderRadius: 10,
+        borderRadius: 20,
         width: 250,
         marginTop: 10,
         height: 100,
@@ -32,7 +38,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'red',
         padding: 10,
-        borderRadius: 10,
+        borderRadius: 20,
         width: 250,
         marginTop: 10,
         height: 100,
@@ -43,6 +49,13 @@ const styles = StyleSheet.create({
         padding: 10,
         elevation: 2,
         width:300
+    },
+    redmodalButton: {
+        borderRadius: 5,
+        padding: 10,
+        elevation: 2,
+        width:300,
+        color: 'red'
     },
     div3: {
         flex:3
@@ -122,7 +135,38 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#FFF'
+    },
+    welcomeInput: {
+        borderColor: 'black',
+        borderWidth: 2,
+        width: 300,
+        marginTop: 10,
+        marginBottom: 10,
+        marginLeft: 10,
+        marginRight: 10,
+        borderRadius: 10,
+        padding: 10,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFF'
+    },
+    creditText: {
+        color: 'black',
+        textAlign: 'center',
+        fontWeight: 'bold'
+
+    },
+    creditView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#3853D4'
+
     }
 });
 
 export default styles;
+
+// navy colour hex code
+// #202b73

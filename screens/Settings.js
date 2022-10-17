@@ -2,7 +2,7 @@
 //Similar in design to the home screen, but with different buttons.
 //The buttons on this page are not yet implemented on the backend, but the front end is good :)
 
-import { StyleSheet, Button, Alert, Modal , TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Button, Alert, Modal , TextInput, TouchableOpacity, Image } from 'react-native';
 import {View,Text} from 'react-native';
 import React, { useState } from "react";
 import { NavigationContainer } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import {ToastAndroid, Platform, AlertIOS } from 'react-native';
 
 
 import styles from '../styles/default.js';
+import bus from '../assets/bus.png';
 import NotificationPage from './Notification.js';
 
 // import AutoLog from './AutoLog.js' //Importing AutoLog and ManualLog js files, which are displayed when the respective button is clicked.
@@ -31,16 +32,18 @@ const SettingsPage = ({ navigation }) => { //Creating the default view of the ho
   return (
     <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
         <View style = {styles.div3}></View>
+        <Image source={bus} style = {{width:100, height: 100}}></Image>
+        <View style = {styles.div1}></View>
         <Text>Settings</Text>
         <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
             onPress={() => notifyMessage('Downloading...')}
             style={styles.button}>
-            <Text style={{ fontSize: 20, textAlign: 'center', color:'#fff'}}>Download Data</Text>
+            <Text style={styles.textStyle}>Download Data</Text>
         </TouchableOpacity>
         <TouchableOpacity //Button that, when clicked, navigates to the ManualLog screen.
             onPress={() => navigation.navigate('Notification Settings')}
             style={styles.button}>
-            <Text style={{ fontSize: 20, color: '#fff' }}>Notification Settings</Text>
+            <Text style={styles.textStyle}>Notification Settings</Text>
         </TouchableOpacity>
         <View style = {styles.div3}></View>
     </View>
