@@ -243,7 +243,7 @@ const App = () => {
                   <Text style={styles.textStyle}>CONFIRM</Text>
                 </Pressable>
                 <Pressable
-                  style={[styles.redbutton, styles.buttonClose]}
+                  style={[styles.modalbutton, styles.buttonClose]}
                   // on press, handle sign up and change visible to false
                   onPress={() => {
                     setModalVisible(!modalVisible);

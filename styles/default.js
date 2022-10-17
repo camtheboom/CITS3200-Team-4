@@ -44,6 +44,13 @@ const styles = StyleSheet.create({
         elevation: 2,
         width:300
     },
+    redmodalButton: {
+        borderRadius: 5,
+        padding: 10,
+        elevation: 2,
+        width:300,
+        color: 'red'
+    },
     div3: {
         flex:3
     },
