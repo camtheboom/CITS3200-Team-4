@@ -21,11 +21,11 @@ import * as Location from "expo-location"
 const app = initializeApp(firebaseConfig); //Initialises the database
 const auth = getAuth(app);
 const db = getDatabase();
-const position_time_interval = 2000; //Interval of time between recording user position. 1000 = 1 second.
-const movement_time_interval = 5000; //Interval of time between checking if user moved. 1000 = 1 second.
-const stopped_time_interval = 10000; //Interval of time between checking if user stopped. 1000 = 1 second.
-const movement_threshold = 10; //Threshold. When the user moves further than this threshold, we consider it 'movement'
-const stopped_threshold = 10; //Threshold. When the user has not moved further than this threshold, we consider it 'stopped'.
+const position_time_interval = 20000; //Interval of time between recording user position. 1000 = 1 second.
+const movement_time_interval = 30000; //Interval of time between checking if user moved. 1000 = 1 second.
+const stopped_time_interval = 30000; //Interval of time between checking if user stopped. 1000 = 1 second.
+const movement_threshold = 5; //Threshold. When the user moves further than this threshold, we consider it 'movement'
+const stopped_threshold = 5; //Threshold. When the user has not moved further than this threshold, we consider it 'stopped'.
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 
 //This function returns the last X visited locations, where X is the number_of_locations.
@@ -49,6 +49,7 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import { NavigationContainer } from '@react-navigation/native';
 import  MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
 import { setBadgeCountAsync } from 'expo-notifications';
+import { ToastProvider } from 'react-native-toast-notifications';
 
 const Stack = createNativeStackNavigator(); //Creating a stack navigator to navigate between the screens.
   
@@ -67,15 +68,33 @@ const App = () => {
 
   //This stores whether the user has stopped or not, as well as their reason for moving
   const [hasStopped, sethasStopped] = useState(false);
-  const [location, setLocation] = useState('');
+  const [prevLocation, setPrevLocation] = useState('');
+  const [newLocation, setNewLocation] = useState('');
+  const [distance, setDistance] = useState(-1);
 
+  const [location, setLocation] = useState('');
   const [movement_method, setMovement_method] = useState("")
   const [manualLog, setManualLog] = useState([]);
+
+  const R = 6371e3; //metres
+  //Used to compute distance between two longitude-latitude points
+  function comp_dist(lat1, lat2, lon1, lon2) {
+    const lat1_trans = lat1 * Math.PI/180;
+    const lat2_trans = lat2 * Math.PI/180;
+    const lat_diff = (lat2 - lat1) * Math.PI/180;
+    const lon_diff = (lon2 - lon1) * Math.PI/180;
+
+    const a = Math.sin(lat_diff/2) * Math.sin(lat_diff/2) + Math.cos(lat1_trans) * Math.cos(lat2_trans) * Math.sin(lon_diff/2) * Math.sin(lon_diff/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    const d = R * c;
+    return(d);
+  }
 
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
     console.log('Checking for movement...');
-    if (movement_change >= movement_threshold && tracking) {
+    if (distance >= movement_threshold && tracking) {
       sethasMoved(true);
       window.current_coordinates = 5000;
     } else {
@@ -86,15 +105,9 @@ const App = () => {
   //Checks if user has moved below the threshold. Needs to be updated with GPS.
   function checkStopped() {
     console.log('Checking if stopped...');
-    if (movement_change <= stopped_threshold && tracking) {
+    if (distance <= stopped_threshold && distance >= 0 && tracking) {
       sethasStopped(true);
       window.current_coordinates = 5000;
-    }
-  }
-
-  function writePositionDataIfTracking() {
-    if(tracking) {
-      writePositionData(user.uid, current_coordinates)
     }
   }
 
@@ -132,20 +145,53 @@ const App = () => {
     }
   }, [stopCount, tracking]);
 
-  //This is used to continually log the users location
-  useEffect( () => {
-    const timer = setInterval( () => {writePositionDataIfTracking()}, position_time_interval);
-
-    return () => {
-      clearInterval(timer);
-    }
-  }, []);
-
   const addResponse = res => {
     setManualLog(current => [...current, res]);
   }
 
+  const test = () => {
+    console.log('test');
+  }
 
+  setInterval( () => {
+    test;
+  }, 1000);
+
+  const [locationCount, setLocationCount] = useState(0);
+  useEffect( () => {
+    const timer = setTimeout( () => { 
+        (async () => {
+            let {status} = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+            if (user && tracking) {
+              let location = await Location.getCurrentPositionAsync({});
+              if (prevLocation == ''){
+                setPrevLocation(location['coords']);
+              } else if (newLocation == '') {
+                setNewLocation(location['coords']);
+              } else {
+                let d = comp_dist(prevLocation['latitude'], newLocation['latitude'], prevLocation['longitude'], newLocation['longitude']);
+                setDistance(d);
+              }
+              //Sets previous location to (now old) new location, then new location to your current location.
+              setPrevLocation(newLocation); 
+              setNewLocation(location['coords']); 
+              setLocationCount(locationCount + 1);
+              writePositionData(user.uid, location['coords']);
+              console.log(prevLocation);
+              console.log(newLocation);
+            }
+        })();
+    }, position_time_interval)
+    return () => {
+        clearTimeout(timer);
+      }
+  }, [locationCount, tracking]);
+
+  //Retrieves the users manual log entries and saves them as a list of objects, where each object is an entry.
   useEffect( () => {
     onValue(ref(db, 'users/' + user.uid + '/manual_log'), (snapshot) => {
       let data = snapshot.val();
@@ -434,6 +480,8 @@ const App = () => {
         </View>
       );
     };
+
+  
  //location tracking stuff
     const LOCATION_TASK_NAME = "LOCATION_TASK_NAME"
     let foregroundSubscription = null
@@ -448,9 +496,6 @@ const App = () => {
             // Extract location coordinates from data
             const { locations } = data
             const location = locations[0]
-            if (location) {
-                console.log("Location in background", location.coords)
-            }
         }
     })
     // Define position state: {latitude: number, longitude: number}
