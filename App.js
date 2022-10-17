@@ -218,7 +218,7 @@ const App = () => {
                   style={styles.welcomeInput}
                   secureTextEntry
               />
-              <View style = {styles.div1}></View>
+              
               <TouchableOpacity
                   onPress={() => handleLogin()} 
                   style = {styles.button}

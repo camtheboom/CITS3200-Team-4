@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         width: 250,
         marginTop: 10,
-        marginBottom: 10,
         height: 100,
         flex: 1,
         color: '#384bc7'
