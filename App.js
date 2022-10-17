@@ -65,7 +65,7 @@ const App = () => {
 
   const [movement_method, setMovement_method] = useState("")
 
-  const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main AutoLog page.
+  const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main App page.
 
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
@@ -159,6 +159,7 @@ const App = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
+    const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main App page.
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -176,6 +177,7 @@ const App = () => {
             console.log("Registered with:", user.email);
         }) 
         .catch(error => alert(error.message));
+        
     }
 
     const handleLogin = () => {
@@ -200,13 +202,13 @@ const App = () => {
                   placeholder="Email"
                   value={email}
                   onChangeText={text => setEmail(text)}
-                  style={styles.logInput}
+                  style={styles.welcomeInput}
               />
               <TextInput
                   placeholder="Password"
                   value={password}
                   onChangeText={text => setPassword(text)}
-                  style={styles.logInput}
+                  style={styles.welcomeInput}
                   secureTextEntry
               />
           </View>
@@ -220,7 +222,7 @@ const App = () => {
               </TouchableOpacity>
               <TouchableOpacity
               // on press, set modal to visible and handle sign in
-                  onPress={() => {handleSignUp(); setModalVisible(!modalVisible);}}  
+                  onPress={() => setModalVisible(!modalVisible)}  
 
                   style = {styles.button}
               >
@@ -240,13 +242,47 @@ const App = () => {
             <View style={styles.container}>
               <View style={styles.modalView}>
                 <Text style={styles.modalText}>
-                    Welcome to the Human Movement Mapping research project! Click yes below to confirm this is your first time logging into the app.
-                    If this is not your first time logging into the application, click CANCEL.
+                    Welcome to the Human Movement Mapping Trial!
+                    It appears this is your first time logging into the application.
+                    To enter the app, please confirm your email and password, and enter your age, weight and gender identity.
+                    If you clicked register by mistake, click cancel.
                     </Text>
+                  
+                  <TextInput
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={text => setEmail(text)}
+                  style={styles.welcomeInput}
+                  />
+                  <TextInput
+                      placeholder="Password"
+                      value={password}
+                      onChangeText={text => setPassword(text)}
+                      style={styles.welcomeInput}
+                      secureTextEntry
+                  />
+                  
+                  <TextInput
+                  placeholder="Age"
+                  style={styles.welcomeInput}
+                  keyboardType = 'numeric'
+                  />
+
+                  <TextInput
+                  placeholder="Weight (in KG)"
+                  style={styles.welcomeInput}
+                  keyboardType = 'numeric'
+                  />
+
+                  <TextInput
+                  placeholder="Gender"
+                  style={styles.welcomeInput}
+                  />
+
                 <TouchableOpacity
                   style={styles.startbutton}
                   // On press, change the value of modalVisible
-                  onPress={() => setModalVisible(!modalVisible)}
+                  onPress={() => handleSignUp()}
                 >
                   <Text style={styles.textStyle}>CONFIRM</Text>
                 </TouchableOpacity>
@@ -328,16 +364,16 @@ const App = () => {
               </View>
             </View>
           </Modal>
-          <View style = {styles.div}></View>
-          <View style = {styles.div}></View>
-          <View style = {styles.div}></View>
+          <View style = {styles.div3}></View>
+          <View style = {styles.div3}></View>
+          <View style = {styles.div3}></View>
           <TouchableOpacity style ={styles.startbutton}>
           <Pressable onPress={() => setTracking(true)}>
             <Text style={styles.textStyle}>START</Text>
           </Pressable>
           </TouchableOpacity>
   
-          <View style = {styles.div}></View>
+          <View style = {styles.div3}></View>
   
           <TouchableOpacity style ={styles.startbutton}>
           <Pressable onPress={() => setTracking(false)}>
