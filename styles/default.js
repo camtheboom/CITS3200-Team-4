@@ -10,6 +10,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    bigcontainer: {
+        flex: 2,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
       input: {
         height:40,
         borderColor: 'black',
@@ -23,6 +29,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         width: 250,
         marginTop: 10,
+        marginBottom: 10,
         height: 100,
         flex: 1,
         color: '#384bc7'
@@ -144,6 +151,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#FFF'
+    },
+    creditText: {
+        color: 'black',
+        textAlign: 'center',
+        fontWeight: 'bold'
+
+    },
+    creditView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#3853D4'
+
     }
 });
 
