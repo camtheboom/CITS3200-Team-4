@@ -127,7 +127,21 @@ const styles = StyleSheet.create({
         flexwrap: "row"
 
     },
-  
+        taskItem:{
+        padding: 10,
+        marginVertical: 15,
+        fontSize: 16
+      },
+      taskTitle:{
+        backgroundColor: "#ffffff",
+        fontSize: 20,
+        fontWeight: "bold",
+        padding: 10,
+        elevation: 4,
+        margin: 10,
+        marginBottom: 0,
+        borderRadius: 10
+      } 
   
     
 });
