@@ -16,6 +16,7 @@ import styles from './styles/default.js';
 import * as TaskManager from "expo-task-manager"
 import * as Location from "expo-location"
 
+import { SectionList } from 'react-native';
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 const app = initializeApp(firebaseConfig); //Initialises the database
@@ -452,7 +453,7 @@ const App = () => {
                 Mode of Transport: {item.method_of_movement} {'\n'}
                 Start Location: {item.start_location} {'\n'}
                 End Location: {item.end_location} {'\n'}
-                Description: {item.desciption} 
+                Description: {item.description} 
                 </Text>
             )}
             
