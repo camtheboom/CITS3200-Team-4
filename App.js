@@ -365,7 +365,7 @@ const App = () => {
               <View>
                 <View>
                   <TextInput 
-                  placeholder={manualLog}
+                  placeholder="Start Location"
                   style={{justifyContent: 'flex-start',}} 
                   value={start} 
                   onChangeText={(start) => setStart(start)}/>
