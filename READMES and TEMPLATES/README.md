@@ -18,3 +18,12 @@ In the same directory, run `git clone <project url>` to create a local copy of t
 Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: `npx expo install firebase`. Additionally, check your email and accept the invitation to become a member of the firebase project.
 
 That's it! The configuration file for firebase is already included in the GitHub, and the project has already been setup on the firebase website.
+
+Installing Expo location
+Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: npx expo install expo-location
+
+Installing Map feature required for expo location
+Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: expo install react-native-maps
+
+Installing Task Manager required by expo location to ask for foreground permissions
+Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: expo install expo-task-manager
