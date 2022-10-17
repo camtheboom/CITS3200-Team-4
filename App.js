@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, Image } from 'react-native';
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push } from "firebase/database";
 import firebaseConfig from "./firebase.config";
@@ -10,6 +10,7 @@ import { useEffect, useState, useRef, createContext, useContext } from "react";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/core';
 import styles from './styles/default.js';
+import logo from './assets/run.png';
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 const app = initializeApp(firebaseConfig); //Initialises the database
@@ -390,7 +391,10 @@ const App = () => {
   
       return (
           <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
+            
               <View style = {styles.div3}></View>
+              <Image source={logo} style = {{width:100, height: 100}}></Image>
+              <View style = {styles.div1}></View>
               <Text>Home Screen</Text>
               <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
                   onPress={() => navigation.navigate('AutoLog')}
@@ -402,6 +406,7 @@ const App = () => {
                   style={styles.button}>
                   <Text style={{ fontSize: 20, color: '#fff' }}>Manual Log</Text>
               </TouchableOpacity>
+              
               <View style = {styles.div3}></View>
           </View>
       )
