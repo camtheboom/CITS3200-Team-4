@@ -61,7 +61,8 @@ function getManualLog(UserId){
   const dbRef = ref(getDatabase());
   get(child(dbRef, `users/${UserId}/manual_log`)).then((snapshot) => {
     if (snapshot.exists()) {
-      console.log(snapshot.val());
+      const listResponses = getListOfManualLog(snapshot);
+      return(listResponses);
     } else {
       console.log("No data avaliable")
     }
@@ -69,6 +70,22 @@ function getManualLog(UserId){
     console.log(error);
   });
 }
+
+function getListOfManualLog(snapshot){
+  const data = snapshot.val();
+  const listOfResponses = [];
+
+  if (data == null){
+    return(listOfResponses);
+  };
+
+  const responses = Object.getOwnPropertyNames(data);
+  for (let i = 0; i< responses.length; i++){
+    let response = data[responses[i]];
+    listOfResponses.push(response);
+  }
+  return(listOfResponses);
+};
 
 //This function saves to the database a starting and finishing location, and the method of transport used to move between them (E.g. car, walking, bus, etc.)
 function writeMovementData(UserId, start_location, end_location, start_coordinates, end_coordinates, method_of_movement){
@@ -111,4 +128,4 @@ function writeManualLog(UserId, start_location, end_location, description, metho
 
 
 
-export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog, getManualLog };
+export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog, getListOfManualLog };

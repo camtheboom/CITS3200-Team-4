@@ -2,10 +2,10 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, SafeAreaView, ScrollView,  } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown'
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, push, child } from "firebase/database";
+import { getDatabase, ref, onValue, set, push, child, get } from "firebase/database";
 import firebaseConfig from "./firebase.config";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog, getManualLog } from "./database";
+import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog } from "./database";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as React from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -70,10 +70,11 @@ const App = () => {
   const [location, setLocation] = useState('');
 
   const [movement_method, setMovement_method] = useState("")
+  const [manualLog, setManualLog] = useState([]);
 
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
-    console.log('Checking for movement...')
+    console.log('Checking for movement...');
     if (movement_change >= movement_threshold && tracking) {
       sethasMoved(true);
       window.current_coordinates = 5000;
@@ -84,7 +85,7 @@ const App = () => {
 
   //Checks if user has moved below the threshold. Needs to be updated with GPS.
   function checkStopped() {
-    console.log('Checking if stopped...')
+    console.log('Checking if stopped...');
     if (movement_change <= stopped_threshold && tracking) {
       sethasStopped(true);
       window.current_coordinates = 5000;
@@ -105,19 +106,23 @@ const App = () => {
   useEffect( () => {
     const timer_movement = setTimeout( () => {
       checkMovement();
-      setMoveCount(moveCount + 1);
+      if (user && tracking){
+        setMoveCount(moveCount + 1);
+      }
     }, movement_time_interval);
     setMovement('');
 
     return () => {
       clearTimeout(timer_movement);
-  }}, [moveCount]);
+  }}, [moveCount, tracking]);
 
   //This is used for tracking locations, and prompts the user to say why they have stopped every 10 seconds.
   useEffect( () => {
     const timer_stopped = setTimeout( () => {
       checkStopped();
-      setStopCount(stopCount + 1);
+      if (user && tracking){
+        setStopCount(stopCount + 1);
+      }
     }, stopped_time_interval);
     setLocation('');
     setMovement_method('');
@@ -125,7 +130,7 @@ const App = () => {
     return () => {
       clearTimeout(timer_stopped);
     }
-  }, [stopCount]);
+  }, [stopCount, tracking]);
 
   //This is used to continually log the users location
   useEffect( () => {
@@ -135,6 +140,62 @@ const App = () => {
       clearInterval(timer);
     }
   }, []);
+
+  const addResponse = res => {
+    setManualLog(current => [...current, res]);
+  }
+
+
+  useEffect( () => {
+    onValue(ref(db, 'users/' + user.uid + '/manual_log'), (snapshot) => {
+      let data = snapshot.val();
+      setManualLog([])
+      const listOfResponses = [];
+
+      if (data == null){
+        setManualLog([]);
+      } else {
+        let responses = Object.getOwnPropertyNames(data);
+        for (let i = 0; i < responses.length; i++){
+            let response = data[responses[i]];
+            listOfResponses.push(response);
+        };
+        setManualLog(listOfResponses)
+      }
+    })
+  }, [user]);
+
+  function getListOfManualLog(snapshot){
+    const data = snapshot.val();
+    const listOfResponses = [];
+  
+    if (data == null){
+      return(listOfResponses);
+    };
+  
+    const responses = Object.getOwnPropertyNames(data);
+    for (let i = 0; i< responses.length; i++){
+      let response = data[responses[i]];
+      listOfResponses.push(response);
+    }
+    return(listOfResponses);
+  };
+
+
+  function getManualLog(UserId){
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `users/${UserId}/manual_log`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        const listResponses = getListOfManualLog(snapshot);
+        setManualLog(manualLog.concat(listResponses));
+        console.log(manualLog);
+      } else {
+        console.log("No data avaliable")
+      }
+    }).catch((error) => {
+      console.log(error);
+    });
+  }
 
   //This set of code below successfully updates with the last location visited
   const [last_loc, setLast_loc] = useState("");
@@ -304,7 +365,7 @@ const App = () => {
               <View>
                 <View>
                   <TextInput 
-                  placeholder="Start Location" 
+                  placeholder={manualLog}
                   style={{justifyContent: 'flex-start',}} 
                   value={start} 
                   onChangeText={(start) => setStart(start)}/>
@@ -329,7 +390,6 @@ const App = () => {
             color="#f194ff"
             onPress={() => {
               writeManualLog(user.uid, start, last, description, transport);
-              getManualLog(user.uid); 
             }}
           />  
                 </View>
