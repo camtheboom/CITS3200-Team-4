@@ -65,6 +65,8 @@ const App = () => {
 
   const [movement_method, setMovement_method] = useState("")
 
+  const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main AutoLog page.
+
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
     if (movement_change >= movement_threshold && tracking) {
@@ -209,14 +211,51 @@ const App = () => {
                   <Text style = {styles.textStyle}>Login</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                  onPress={handleSignUp}
+                  onPress={() => setModalVisible(!modalVisible)}
                   style = {styles.button}
               >
                   <Text style = {styles.textStyle}>Register</Text>
               </TouchableOpacity>
               <View style = {styles.div3}></View>
           </View>
-        </View>
+
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={!modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
+            }}
+          >
+            <View style={styles.container}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>
+                    Welcome to the Human Movement Mapping research project! Click yes below to confirm this is your first time logging into the app.
+                    If this is not your first time logging into the application, click CANCEL.
+                    </Text>
+                <Pressable
+                  style={[styles.modalButton, styles.buttonClose]}
+                  // On press, change the value of modalVisible
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                    handleSignUp();}}
+                >
+                  <Text style={styles.textStyle}>CONFIRM</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.redbutton, styles.buttonClose]}
+                  // on press, handle sign up and change visible to false
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                  }}
+                >
+                  <Text style={styles.textStyle}>CANCEL</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
+
+      </View>
       
     )
   };
