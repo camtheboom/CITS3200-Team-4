@@ -19,11 +19,11 @@ Open the Command Prompt and navigate to the directory you have the project store
 
 That's it! The configuration file for firebase is already included in the GitHub, and the project has already been setup on the firebase website.
 
-##Installing Expo location
+## Installing Expo location
 Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: npx expo install expo-location
 
-##Installing Map feature required for expo location
+## Installing Map feature required for expo location
 Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: expo install react-native-maps
 
-##Installing Task Manager required by expo location to ask for foreground permissions
+## Installing Task Manager required by expo location to ask for foreground permissions
 Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: expo install expo-task-manager
