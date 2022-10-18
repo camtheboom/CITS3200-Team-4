@@ -4,7 +4,6 @@ import * as TaskManager from "expo-task-manager"
 import * as Location from "expo-location"
 import MapView, { Marker } from 'react-native-maps';
 
-
 const LOCATION_TASK_NAME = "LOCATION_TASK_NAME"
 let foregroundSubscription = null
 
@@ -25,6 +24,7 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 })
 
 function Profile() {
+    const [location, setLocation] = useState(null);
     const [mapRegion, setmapRegion] = useState({
         latitude: 37.78825,
         longitude: -122.4324,
@@ -34,7 +34,9 @@ function Profile() {
 
     // Define position state: {latitude: number, longitude: number}
     const [position, setPosition] = useState({})
+    const [locationCount, setLocationCount] = useState(0);
     // Request permissions right after starting the app
+
     useEffect(() => {
         const requestPermissions = async () => {
             const foreground = await Location.requestForegroundPermissionsAsync()
@@ -45,6 +47,7 @@ function Profile() {
 
     // Start location tracking in foreground
     const startForegroundUpdate = async () => {
+
         // Check if foreground permission is granted
         const { granted } = await Location.getForegroundPermissionsAsync()
         if (!granted) {
@@ -62,7 +65,10 @@ function Profile() {
                 accuracy: Location.Accuracy.BestForNavigation,
             },
             location => {
-                setPosition(location.coords)
+                setPosition(location.coords);
+                console.log(location.coords);
+                console.log(position);
+                console.log('test');
             }
         )
     }
@@ -77,6 +83,7 @@ function Profile() {
             <MapView style={styles.map}
                 showsUserLocation={true}
                 followsUserLocation={true}
+                onPress = { (event) => console.log(event.nativeEvent.coordinate) }
             >
             </MapView>
         </View>

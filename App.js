@@ -1,11 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
+
+import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, SafeAreaView, ScrollView, Image } from 'react-native';
+import SelectDropdown from 'react-native-select-dropdown'
 import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, Image } from 'react-native';
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, set, push } from "firebase/database";
+import { getDatabase, ref, onValue, set, push, child, get } from "firebase/database";
 import firebaseConfig from "./firebase.config";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement } from "./database";
+import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog } from "./database";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as React from 'react';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useEffect, useState, useRef, createContext, useContext } from "react";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/core';
@@ -20,15 +25,17 @@ import credits from './assets/credits.png';
 import * as TaskManager from "expo-task-manager"
 import * as Location from "expo-location"
 
+import { SectionList } from 'react-native';
+
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 const app = initializeApp(firebaseConfig); //Initialises the database
 const auth = getAuth(app);
 const db = getDatabase();
-const position_time_interval = 2000; //Interval of time between recording user position. 1000 = 1 second.
-const movement_time_interval = 5000; //Interval of time between checking if user moved. 1000 = 1 second.
-const stopped_time_interval = 10000; //Interval of time between checking if user stopped. 1000 = 1 second.
-const movement_threshold = 10; //Threshold. When the user moves further than this threshold, we consider it 'movement'
-const stopped_threshold = 10; //Threshold. When the user has not moved further than this threshold, we consider it 'stopped'.
+const position_time_interval = 20000; //Interval of time between recording user position. 1000 = 1 second.
+const movement_time_interval = 30000; //Interval of time between checking if user moved. 1000 = 1 second.
+const stopped_time_interval = 30000; //Interval of time between checking if user stopped. 1000 = 1 second.
+const movement_threshold = 5; //Threshold. When the user moves further than this threshold, we consider it 'movement'
+const stopped_threshold = 5; //Threshold. When the user has not moved further than this threshold, we consider it 'stopped'.
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 
 //This function returns the last X visited locations, where X is the number_of_locations.
@@ -44,14 +51,15 @@ function getLastLocationsVisited(visited_locations, number_of_locations) {
 // Nav Bar Imports
 
 import { Component } from 'react'
-import TravelLogScreen from './screens/TravelLog';
+//import TravelLogScreen from './screens/TravelLog';
 import StatisticsScreen from './screens/Statistics';
 import SettingsScreen from './screens/Settings';
 import ProfileScreen from './screens/Profile';
-import ManualLog from './screens/ManualLog';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import  MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
+import { setBadgeCountAsync } from 'expo-notifications';
+import { ToastProvider } from 'react-native-toast-notifications';
 
 const Stack = createNativeStackNavigator(); //Creating a stack navigator to navigate between the screens.
   
@@ -70,15 +78,35 @@ const App = () => {
 
   //This stores whether the user has stopped or not, as well as their reason for moving
   const [hasStopped, sethasStopped] = useState(false);
-  const [location, setLocation] = useState('');
+  const [prevLocation, setPrevLocation] = useState('');
+  const [newLocation, setNewLocation] = useState('');
+  const [distance, setDistance] = useState(-1);
 
+  const [location, setLocation] = useState('');
   const [movement_method, setMovement_method] = useState("")
+  const [manualLog, setManualLog] = useState([]);
+
+  const R = 6371e3; //metres
+  //Used to compute distance between two longitude-latitude points
+  function comp_dist(lat1, lat2, lon1, lon2) {
+    const lat1_trans = lat1 * Math.PI/180;
+    const lat2_trans = lat2 * Math.PI/180;
+    const lat_diff = (lat2 - lat1) * Math.PI/180;
+    const lon_diff = (lon2 - lon1) * Math.PI/180;
+
+    const a = Math.sin(lat_diff/2) * Math.sin(lat_diff/2) + Math.cos(lat1_trans) * Math.cos(lat2_trans) * Math.sin(lon_diff/2) * Math.sin(lon_diff/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    const d = R * c;
+    return(d);
+  }
 
   const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main App page.
 
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
-    if (movement_change >= movement_threshold && tracking) {
+    console.log('Checking for movement...');
+    if (distance >= movement_threshold && tracking) {
       sethasMoved(true);
       window.current_coordinates = 5000;
     } else {
@@ -88,66 +116,144 @@ const App = () => {
 
   //Checks if user has moved below the threshold. Needs to be updated with GPS.
   function checkStopped() {
-    if (movement_change <= stopped_threshold && tracking) {
+    console.log('Checking if stopped...');
+    if (distance <= stopped_threshold && distance >= 0 && tracking) {
       sethasStopped(true);
       window.current_coordinates = 5000;
     }
   }
 
-  function writePositionDataIfTracking() {
-    if(tracking) {
-      writePositionData(user.uid, current_coordinates)
-    }
-  }
+  //This is used to ensure that we keep checking for if the user has stopped/moved
+  const [stopCount, setStopCount] = useState(0);
+  const [moveCount, setMoveCount] = useState(0);
 
   //This is used for tracking movement, and prompts the user to say why they have moved every 5 seconds.
-  const test = useEffect( () => {
-    const timer_movement = setTimeout( () => checkMovement(), movement_time_interval);
-    setMovement('');
-
-    return () => {
-      clearTimeout(timer_movement);
-  }}, [tracking]);
-
-  test;
-
   useEffect( () => {
-    const timer_movement = setTimeout( () => checkMovement(), movement_time_interval);
+    const timer_movement = setTimeout( () => {
+      checkMovement();
+      if (user && tracking){
+        setMoveCount(moveCount + 1);
+      }
+    }, movement_time_interval);
     setMovement('');
 
     return () => {
       clearTimeout(timer_movement);
-  }}, [hasMoved]);
+  }}, [moveCount, tracking]);
 
   //This is used for tracking locations, and prompts the user to say why they have stopped every 10 seconds.
   useEffect( () => {
-    const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
+    const timer_stopped = setTimeout( () => {
+      checkStopped();
+      if (user && tracking){
+        setStopCount(stopCount + 1);
+      }
+    }, stopped_time_interval);
     setLocation('');
     setMovement_method('');
 
     return () => {
       clearTimeout(timer_stopped);
     }
-  }, [tracking]);
+  }, [stopCount, tracking]);
 
+  const addResponse = res => {
+    setManualLog(current => [...current, res]);
+  }
+
+  const test = () => {
+    console.log('test');
+  }
+
+  setInterval( () => {
+    test;
+  }, 1000);
+
+  const [locationCount, setLocationCount] = useState(0);
   useEffect( () => {
-    const timer_stopped = setTimeout( () => checkStopped(), stopped_time_interval);
-    setLocation('');
-    setMovement_method('');
-
+    const timer = setTimeout( () => { 
+        (async () => {
+            let {status} = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+            if (user && tracking) {
+              let location = await Location.getCurrentPositionAsync({});
+              if (prevLocation == ''){
+                setPrevLocation(location['coords']);
+              } else if (newLocation == '') {
+                setNewLocation(location['coords']);
+              } else {
+                let d = comp_dist(prevLocation['latitude'], newLocation['latitude'], prevLocation['longitude'], newLocation['longitude']);
+                setDistance(d);
+              }
+              //Sets previous location to (now old) new location, then new location to your current location.
+              setPrevLocation(newLocation); 
+              setNewLocation(location['coords']); 
+              setLocationCount(locationCount + 1);
+              writePositionData(user.uid, location['coords']);
+              console.log(prevLocation);
+              console.log(newLocation);
+            }
+        })();
+    }, position_time_interval)
     return () => {
-      clearTimeout(timer_stopped);
-    }
-  }, [hasStopped]);
+        clearTimeout(timer);
+      }
+  }, [locationCount, tracking]);
 
-  //This is used to continually log the users location
+  //Retrieves the users manual log entries and saves them as a list of objects, where each object is an entry.
   useEffect( () => {
-    const timer = setInterval( () => {writePositionDataIfTracking()}, position_time_interval);
+    onValue(ref(db, 'users/' + user.uid + '/manual_log'), (snapshot) => {
+      let data = snapshot.val();
+      setManualLog([])
+      const listOfResponses = [];
 
-    return () => {
-      clearInterval(timer);
+      if (data == null){
+        setManualLog([]);
+      } else {
+        let responses = Object.getOwnPropertyNames(data);
+        for (let i = 0; i < responses.length; i++){
+            let response = data[responses[i]];
+            listOfResponses.push(response);
+        };
+        setManualLog(listOfResponses)
+      }
+    })
+  }, [user]);
+
+  function getListOfManualLog(snapshot){
+    const data = snapshot.val();
+    const listOfResponses = [];
+  
+    if (data == null){
+      return(listOfResponses);
+    };
+  
+    const responses = Object.getOwnPropertyNames(data);
+    for (let i = 0; i< responses.length; i++){
+      let response = data[responses[i]];
+      listOfResponses.push(response);
     }
-  }, []);
+    return(listOfResponses);
+  };
+
+
+  function getManualLog(UserId){
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `users/${UserId}/manual_log`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        const listResponses = getListOfManualLog(snapshot);
+        setManualLog(manualLog.concat(listResponses));
+        console.log(manualLog);
+      } else {
+        console.log("No data avaliable")
+      }
+    }).catch((error) => {
+      console.log(error);
+    });
+  }
 
   //This set of code below successfully updates with the last location visited
   const [last_loc, setLast_loc] = useState("");
@@ -173,6 +279,7 @@ const App = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
+                setUser(user);
                 navigation.replace("App");
             }
         })
@@ -352,40 +459,123 @@ const App = () => {
     )
   }
 
+  const ManualLog = () => {
+
+    // const  ManualPage = ({ navigation }) => { 
+    
+      const [start, setStart] = useState('');
+      const [last, setLast] = useState('');
+      const [description, setDescription] = useState('');
+      const [transport, setTransport] = useState('');
+    
+        const modes = [
+          'Car',
+          'Walk',
+          'Ride',
+          'Train',
+          'Bus'
+        ];
+    
+        const renderHeader = () => {
+          return (
+            <View style={[styles.header, styles.shadow]}>
+              <Text style={styles.headerTitle}>{'What did you do?'}</Text>
+            </View>
+          );
+        };
+      
+        return (
+          <SafeAreaView style={styles.saveAreaViewContainer}>
+            <StatusBar backgroundColor="#FFF" barStyle="dark-content" />
+            <View style={styles.viewContainer}>
+              {renderHeader()}
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                alwaysBounceVertical={false}
+                contentContainerStyle={styles.scrollViewContainer}>
+    
+                <SelectDropdown
+                  data={modes}
+    
+                  onSelect={(selectedItem, index) => {
+                    setTransport(selectedItem);
+                    console.log(selectedItem, index);
+                  }}
+                  defaultButtonText={'Select Mode of Transport'}
+                  buttonTextAfterSelection={(selectedItem, index) => {
+                    return selectedItem;
+                  }}
+                  rowTextForSelection={(item, index) => {
+                    return item;
+                  }}
+                  buttonStyle={styles.dropdown1BtnStyle}
+                  buttonTextStyle={styles.dropdown1BtnTxtStyle}
+                  renderDropdownIcon={isOpened => {
+                    return <FontAwesome name={isOpened ? 'chevron-up' : 'chevron-down'} color={'#444'} size={18} />;
+                  }}
+                  dropdownIconPosition={'right'}
+                  dropdownStyle={styles.dropdown1DropdownStyle}
+                  rowStyle={styles.dropdown1RowStyle}
+                  rowTextStyle={styles.dropdown1RowTxtStyle}
+                />
+              </ScrollView>
+            </View>
+            <View style={styles.textBoxLocation}>
+              <View>
+                <View>
+                  <TextInput 
+                  placeholder="Start Location"
+                  style={{justifyContent: 'flex-start',}} 
+                  value={start} 
+                  onChangeText={(start) => setStart(start)}/>
+                </View>
+                <View>
+                  <TextInput 
+                  placeholder="End Location" 
+                  style={{justifyContent: 'flex-end',}} 
+                  value={last}
+                  onChangeText={(last) => setLast(last)}/>
+                </View>
+                <View>
+                  <TextInput 
+                  placeholder="Description" 
+                  multiline 
+                  value={description}
+                  onChangeText={(description) => setDescription(description)}/>
+                </View>
+                <View>
+                <Button
+            title="Submit"
+            color="#f194ff"
+            onPress={() => {
+              writeManualLog(user.uid, start, last, description, transport);
+            }}
+          />  
+                </View>
+            </View>
+            </View>
+          </SafeAreaView>
+          
+    
+        );
+            
+      };
 
   const AutoLog = () => { //AutoLog view
-    const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main AutoLog page.
 
     return (
         
 
         <View style={styles.centeredView} >
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-              setModalVisible(!modalVisible);
-            }}
-          >
-            <View style={styles.container}>
-              <View style={styles.modalView}>
-                <Text style={styles.modalText}>
-                    ATTENTION: AutoLog will log your location data every minute. Click START on the following page to begin location tracking.
-                    </Text>
-                <Pressable
-                  style={[styles.modalButton, styles.buttonClose]}
-                  onPress={() => setModalVisible(!modalVisible)}
-                >
-                  <Text style={styles.textStyle}>OK</Text>
-                </Pressable>
-              </View>
-            </View>
-          </Modal>
-          <View style = {styles.div3}></View>
-          <Image source={bicycle} style = {{width:100, height: 100}}></Image>
-          <View style = {styles.div1}></View>
-          <View style = {styles.div3}></View>
+          <View style = {styles.div}></View>
+          <View style = {styles.div}></View>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>
+                    ATTENTION: AutoLog will log your location data every minute. Click START to begin location tracking.
+            </Text>
+          </View>
+          <View style = {styles.div}></View>
+
           <TouchableOpacity style ={styles.startbutton}>
           <Pressable onPress={() => setTracking(true)}>
             <Text style={styles.textStyle}>START</Text>
@@ -401,6 +591,39 @@ const App = () => {
         </View>
       );
     };
+
+// TRAVEL LOG SCREEN
+
+    const TravelLog = () =>{
+    // export default function TravelLog() {
+      const newTaskData = [{
+        title: "Past Logs",
+        data: manualLog
+      }];
+      return (
+        <View style={styles.container}>
+          <SectionList
+            sections={[...newTaskData]}
+            renderItem={({item})=>(
+                <Text style={styles.taskItem}> 
+                Mode of Transport: {item.method_of_movement} {'\n'}
+                Start Location: {item.start_location} {'\n'}
+                End Location: {item.end_location} {'\n'}
+                Description: {item.description} 
+                </Text>
+            )}
+            
+            renderSectionHeader={({section})=>(
+              <Text style={styles.taskTitle}>{section.title}</Text>
+            )}
+            keyExtractor={item=>item.id}
+            stickySectionHeadersEnabled
+          />
+        </View>
+      );
+    }
+
+// ^^^^^^
  //location tracking stuff
     const LOCATION_TASK_NAME = "LOCATION_TASK_NAME"
     let foregroundSubscription = null
@@ -415,9 +638,6 @@ const App = () => {
             // Extract location coordinates from data
             const { locations } = data
             const location = locations[0]
-            if (location) {
-                console.log("Location in background", location.coords)
-            }
         }
     })
     // Define position state: {latitude: number, longitude: number}
@@ -565,29 +785,22 @@ const App = () => {
       return(
         <Tab.Navigator labeled={false} barStyle={{ backgroundColor: 'black' }} 
       activeColor="white" >
-        <Tab.Screen name="Home" component={HomeScreen}            //Home Screen
+        <Tab.Screen name="Auto Log" component={AutoLog}            //Home Screen
         options={{
           tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="home" color={color} size={26}/>
           ),
       }}/>
-        <Tab.Screen name="Settings" component={SettingsScreen}      //Settings Screen
+      <Tab.Screen name="Manual Log" component={ManualLog}            //Home Screen
         options={{
           tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="cog-outline" color={color} size={26}/>
+              <MaterialCommunityIcons name="home" color={color} size={26}/>
           ),
       }}/>
-        <Tab.Screen name="TravelLog" component={TravelLogScreen}    // TravellogScreen
+        <Tab.Screen name="TravelLog" component={TravelLog}    // TravellogScreen
         options={{
           tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="map" color={color} size={26}/>
-          ),
-      }}/>
-        <Tab.Screen name="Statistics" component={StatisticsScreen}   // Statistics Screen
-        options={{
-          tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="chart-line-variant" color={color} 
-  size={26}/>
           ),
       }}/>
         <Tab.Screen name="Profile" component={ProfileScreen}   // Profile Screen
