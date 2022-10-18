@@ -20,11 +20,11 @@ import bicycle from './assets/bicycle.png';
 import bus from './assets/bus.png';
 import train from './assets/train.png';
 import car from './assets/car.png';
-import credits from './assets/credits.png';
 import * as TaskManager from "expo-task-manager"
 import * as Location from "expo-location"
 
 import { SectionList } from 'react-native';
+import {ToastAndroid, Platform, AlertIOS } from 'react-native';
 
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
 const app = initializeApp(firebaseConfig); //Initialises the database
@@ -36,6 +36,15 @@ const stopped_time_interval = 20000; //Interval of time between checking if user
 const movement_threshold = 5; //Threshold. When the user moves further than this threshold, we consider it 'movement'
 const stopped_threshold = 5; //Threshold. When the user has not moved further than this threshold, we consider it 'stopped'.
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
+
+//This function displays a small message on the screen - notifys the user of backend events relating to auto tracking
+function notifyMessage(msg) {
+  if (Platform.OS === 'android') {
+    ToastAndroid.show(msg, ToastAndroid.SHORT)
+  } else {
+    AlertIOS.alert(msg);
+  }
+}
 
 //This function returns the last X visited locations, where X is the number_of_locations.
 function getLastLocationsVisited(visited_locations, number_of_locations) {
@@ -536,15 +545,11 @@ const App = () => {
           </View>
           <View style = {styles.div}></View>
 
-          <TouchableOpacity style ={styles.startbutton}>
-          <Pressable onPress={() => setTracking(true)}>
+          <TouchableOpacity style ={styles.startbutton} onPress={() => {setTracking(true); notifyMessage('Automatic tracking turned ON!');}}>
             <Text style={styles.textStyle}>START</Text>
-          </Pressable>
           </TouchableOpacity>
-          <TouchableOpacity style ={styles.redbutton}>
-          <Pressable onPress={() => setTracking(false)}>
+          <TouchableOpacity style ={styles.redbutton} onPress={() => {setTracking(false); notifyMessage('Automatic tracking turned OFF.');}}>
             <Text style={styles.textStyle}>STOP</Text>
-          </Pressable>
           </TouchableOpacity>
           <View style = {styles.div3}></View>
           
