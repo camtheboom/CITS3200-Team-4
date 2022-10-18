@@ -158,12 +158,12 @@ const styles = StyleSheet.create({
         flexwrap: "row"
 
     },
-        taskItem:{
+    taskItem:{
         padding: 10,
         marginVertical: 15,
         fontSize: 16
       },
-      taskTitle:{
+    taskTitle:{
         backgroundColor: "#ffffff",
         fontSize: 20,
         fontWeight: "bold",
@@ -171,7 +171,8 @@ const styles = StyleSheet.create({
         elevation: 4,
         margin: 10,
         marginBottom: 0,
-        borderRadius: 10
+        borderRadius: 10,
+        textAlign: "center"
       },
 
     h1: {
@@ -228,6 +229,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#3853D4' //Unused credit view - used to display credits on the login screen
+
+    },
+    dataLog: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#2840E8', //Data log view - used to display manual logs.
+        paddingVertical: 10,
+        marginVertical: 10,
+        marginHorizontal: 40,
+        borderRadius: 10
+    },
+    logText: {
+        color: 'white',
+        textAlign: 'center',
+        fontWeight: 'bold',
+        fontSize: 16,
+        paddingHorizontal: 10,
+        margin: 5 //Style of text used in the data log view
 
     }
 });

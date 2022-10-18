@@ -543,7 +543,9 @@ const App = () => {
                     ATTENTION: AutoLog will log your location data every minute. Click START to begin location tracking.
             </Text>
           </View>
-          <View style = {styles.div}></View>
+          <View style = {styles.div1}></View>
+            <Image source={bicycle} style = {{width:100, height: 100}}></Image>
+          <View style = {styles.div1}></View>
 
           <TouchableOpacity style ={styles.startbutton} onPress={() => {setTracking(true); notifyMessage('Automatic tracking turned ON!');}}>
             <Text style={styles.textStyle}>START</Text>
@@ -570,12 +572,12 @@ const App = () => {
           <SectionList
             sections={[...newTaskData]}
             renderItem={({item})=>(
-                <Text style={styles.taskItem}> 
-                Mode of Transport: {item.method_of_movement} {'\n'}
-                Start Location: {item.start_location} {'\n'}
-                End Location: {item.end_location} {'\n'}
-                Description: {item.description} 
-                </Text>
+              <View style={styles.dataLog}>
+                <Text style={styles.logText}> Mode of Transport: {item.method_of_movement} </Text>
+                <Text style={styles.logText}>Start Location: {item.start_location}</Text>
+                <Text style={styles.logText}>End Location: {item.end_location}</Text>
+                <Text style={styles.logText}>Description: {item.description} </Text>
+              </View>
             )}
             
             renderSectionHeader={({section})=>(
