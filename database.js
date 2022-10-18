@@ -126,6 +126,18 @@ function writeManualLog(UserId, start_location, end_location, description, metho
   });
 };
 
+function writePersonalInfo(UserId, age, weight, gender){
+  const db = getDatabase();
+  const reference = ref(db, 'users/' + UserId + '/personal_information');
+  const pushReference = push(reference);
+
+  set (pushReference, {
+    age: age,
+    weight: weight,
+    gender: gender
+  });
+};
 
 
-export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog, getListOfManualLog };
+
+export { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog, getListOfManualLog, writePersonalInfo };

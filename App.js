@@ -1,12 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 
 import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, SafeAreaView, ScrollView, Image } from 'react-native';
-import SelectDropdown from 'react-native-select-dropdown';
+import SelectDropdown from 'react-native-select-dropdown'
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, child, get } from "firebase/database";
 import firebaseConfig from "./firebase.config";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog } from "./database";
+import { writeUserData, writeLocationData, writePositionData, listOfLocationsVisited, writeMovementData, reasonForMovement, writeManualLog, writePersonalInfo } from "./database";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as React from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -272,6 +272,9 @@ const App = () => {
   const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [age, setAge] = useState('');
+    const [weight, setWeight] = useState('');
+    const [gender, setGender] = useState('');
     const navigation = useNavigation();
     const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main App page.
 
@@ -290,6 +293,7 @@ const App = () => {
             setUser(userCredentials.user);
             setLoggedIn(true);
             console.log("Registered with:", user.email);
+            writePersonalInfo(userCredentials.user.uid, age, weight, gender)
         }) 
         .catch(error => alert(error.message));
         
@@ -371,40 +375,32 @@ const App = () => {
                     </Text>
                   
                   <TextInput
-                  placeholder="Email"
-                  value={email}
-                  onChangeText={text => setEmail(text)}
-                  style={styles.welcomeInput}
-                  />
-                  <TextInput
-                      placeholder="Password"
-                      value={password}
-                      onChangeText={text => setPassword(text)}
-                      style={styles.welcomeInput}
-                      secureTextEntry
-                  />
-                  
-                  <TextInput
-                  placeholder="Age"
-                  style={styles.welcomeInput}
-                  keyboardType = 'numeric'
+                    placeholder="Age"
+                    value = {age}
+                    onChangeText={(age) => setAge(age)}
+                    style={styles.welcomeInput}
+                    keyboardType = 'numeric'
                   />
 
                   <TextInput
-                  placeholder="Weight (in KG)"
-                  style={styles.welcomeInput}
-                  keyboardType = 'numeric'
+                    placeholder="Weight (in KG)"
+                    value = {weight}
+                    onChangeText={(weight) => setWeight(weight)}
+                    style={styles.welcomeInput}
+                    keyboardType = 'numeric'
                   />
 
                   <TextInput
-                  placeholder="Gender"
-                  style={styles.welcomeInput}
+                    placeholder="Gender"
+                    value={gender}
+                    onChangeText={(gender) => setGender(gender)}
+                    style={styles.welcomeInput}
                   />
 
                 <TouchableOpacity
                   style={styles.startbutton}
                   // On press, change the value of modalVisible
-                  onPress={() => handleSignUp()}
+                  onPress={() => {handleSignUp()}}
                 >
                   <Text style={styles.textStyle}>CONFIRM</Text>
                 </TouchableOpacity>
