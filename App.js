@@ -30,9 +30,9 @@ import { SectionList } from 'react-native';
 const app = initializeApp(firebaseConfig); //Initialises the database
 const auth = getAuth(app);
 const db = getDatabase();
-const position_time_interval = 20000; //Interval of time between recording user position. 1000 = 1 second.
-const movement_time_interval = 30000; //Interval of time between checking if user moved. 1000 = 1 second.
-const stopped_time_interval = 30000; //Interval of time between checking if user stopped. 1000 = 1 second.
+const position_time_interval = 10000; //Interval of time between recording user position. 1000 = 1 second.
+const movement_time_interval = 20000; //Interval of time between checking if user moved. 1000 = 1 second.
+const stopped_time_interval = 20000; //Interval of time between checking if user stopped. 1000 = 1 second.
 const movement_threshold = 5; //Threshold. When the user moves further than this threshold, we consider it 'movement'
 const stopped_threshold = 5; //Threshold. When the user has not moved further than this threshold, we consider it 'stopped'.
 ///////////////////////////////////////////////////////Global Variables///////////////////////////////////////////////////////
@@ -82,7 +82,8 @@ const App = () => {
   const [distance, setDistance] = useState(-1);
 
   const [location, setLocation] = useState('');
-  const [movement_method, setMovement_method] = useState("")
+  const [startLocation, setStartLocation] = useState('');
+  const [movement_method, setMovement_method] = useState("");
   const [manualLog, setManualLog] = useState([]);
 
   const R = 6371e3; //metres
@@ -134,7 +135,9 @@ const App = () => {
         setMoveCount(moveCount + 1);
       }
     }, movement_time_interval);
-    setMovement('');
+    if (!hasMoved){
+      setMovement('');
+    }
 
     return () => {
       clearTimeout(timer_movement);
@@ -148,25 +151,32 @@ const App = () => {
         setStopCount(stopCount + 1);
       }
     }, stopped_time_interval);
-    setLocation('');
-    setMovement_method('');
+    if (!hasStopped){
+      setLocation('');
+      setStartLocation('');
+      setMovement_method('');
+    }
 
     return () => {
       clearTimeout(timer_stopped);
     }
   }, [stopCount, tracking]);
 
-  const addResponse = res => {
-    setManualLog(current => [...current, res]);
-  }
+  //Removes text from modal when the user closes it
+  useEffect( () => {
+    if (!hasStopped){
+      setLocation('');
+      setStartLocation('');
+      setMovement_method('');
+    }
+  }, [hasStopped])
 
-  const test = () => {
-    console.log('test');
-  }
-
-  setInterval( () => {
-    test;
-  }, 1000);
+  //Removes text from modal when the user closes it
+  useEffect( () => {
+    if (!hasMoved){
+      setMovement('');
+    }
+  }, [hasMoved])
 
   const [locationCount, setLocationCount] = useState(0);
   useEffect( () => {
@@ -202,6 +212,8 @@ const App = () => {
       }
   }, [locationCount, tracking]);
 
+
+
   //Retrieves the users manual log entries and saves them as a list of objects, where each object is an entry.
   useEffect( () => {
     onValue(ref(db, 'users/' + user.uid + '/manual_log'), (snapshot) => {
@@ -221,53 +233,6 @@ const App = () => {
       }
     })
   }, [user]);
-
-  function getListOfManualLog(snapshot){
-    const data = snapshot.val();
-    const listOfResponses = [];
-  
-    if (data == null){
-      return(listOfResponses);
-    };
-  
-    const responses = Object.getOwnPropertyNames(data);
-    for (let i = 0; i< responses.length; i++){
-      let response = data[responses[i]];
-      listOfResponses.push(response);
-    }
-    return(listOfResponses);
-  };
-
-
-  function getManualLog(UserId){
-    const dbRef = ref(getDatabase());
-    get(child(dbRef, `users/${UserId}/manual_log`)).then((snapshot) => {
-      if (snapshot.exists()) {
-        const listResponses = getListOfManualLog(snapshot);
-        setManualLog(manualLog.concat(listResponses));
-        console.log(manualLog);
-      } else {
-        console.log("No data avaliable")
-      }
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
-
-  //This set of code below successfully updates with the last location visited
-  const [last_loc, setLast_loc] = useState("");
-  useEffect( () => {
-    return onValue(ref(db, 'users/' + user.uid + '/locations_visited/'), querySnapShot => {
-      let data = querySnapShot || {};
-      let items = listOfLocationsVisited(data);
-      let last_item = getLastLocationsVisited(items, 1);
-      console.log(items);
-      console.log(last_item);
-
-      setLast_loc(last_item[0]);
-      setMovement_method('');
-    })
-  }, []);
 
   const LoginScreen = () => {
     const [email, setEmail] = useState('');
@@ -831,7 +796,11 @@ const App = () => {
               <TouchableOpacity style = {styles.button} 
               onPress={() => {
                 sethasMoved(false);
-                reasonForMovement(UserId, movement, current_coordinates);
+                if (newLocation == ''){
+                  reasonForMovement(user.uid, movement, prevLocation);
+                } else {
+                  reasonForMovement(user.uid, movement, newLocation)
+                };
                 }}><Text style = {styles.textStyle}>Send data!</Text></TouchableOpacity>
               <TouchableOpacity style = {styles.button} onPress={() => sethasMoved(false)}><Text style = {styles.textStyle}>I didn't move!</Text></TouchableOpacity>
               <View style = {styles.div1}></View> 
@@ -842,6 +811,11 @@ const App = () => {
             <View style = {styles.container}>
               <View style = {styles.div3}></View>
               <Text style = {styles.h1}>Please fill out where you have stopped:</Text>
+              <TextInput
+                value={startLocation}
+                placeholder="Where you started from"
+                onChangeText={(startLocation) => setStartLocation(startLocation)}
+              ></TextInput>
               <TextInput
                 value={location}
                 placeholder="Where you have stopped"
@@ -855,8 +829,7 @@ const App = () => {
               <TouchableOpacity style = {styles.button}
               onPress={() => {
                 sethasStopped(false);
-                writeLocationData(UserId, location, current_coordinates);
-                writeMovementData(UserId, last_loc, location, 10, 20, movement_method)
+                writeMovementData(user.uid, startLocation, location, prevLocation, newLocation, movement_method)
                 }}><Text style = {styles.textStyle}>Send Data!</Text></TouchableOpacity>
               <TouchableOpacity style = {styles.button} onPress={() => sethasStopped(false)}><Text style = {styles.textStyle}>I didn't stop!</Text></TouchableOpacity>
               <View style = {styles.div1}></View>
