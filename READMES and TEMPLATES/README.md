@@ -27,3 +27,12 @@ Open the Command Prompt and navigate to the directory you have the project store
 
 ## Installing Task Manager required by expo location to ask for foreground permissions
 Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: expo install expo-task-manager
+
+## Running the app on the phone
+To run the app on your phone , go to the google play store and download the expo app . b.	From the expo application, you can scan the QR code to see the app functionality on your phone
+
+## Running the app on a browser
+Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: npx expo install @expo/webpack-config@^0.17.0 .
+However do note that location functionalities are not available on browser ,and this feature was mainly used for debugging and testing integration of the app as a whole
+
+
