@@ -29,7 +29,7 @@ Open the Command Prompt and navigate to the directory you have the project store
 Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: expo install expo-task-manager
 
 ## Running the app on the phone
-To run the app on your phone , go to the google play store and download the expo app , from there you can scan the QR code to see the app funtionality on your phone
+To run the app on your phone , go to the google play store and download the expo app . b.	From the expo application, you can scan the QR code to see the app functionality on your phone
 
 ## Running the app on a browser
 Open the Command Prompt and navigate to the directory you have the project stored. Run the following command: npx expo install @expo/webpack-config@^0.17.0 .
