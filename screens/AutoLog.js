@@ -34,23 +34,23 @@ const AutoLog = forwardRef((props, _ref) => { //AutoLog view
               </View>
             </View>
           </Modal>
-          <View style = {styles.div}></View>
-          <View style = {styles.div}></View>
-          <View style = {styles.div}></View>
+          <View style = {styles.div3}></View>
+          <View style = {styles.div3}></View>
+          <View style = {styles.div3}></View>
           <TouchableOpacity style ={styles.startbutton}>
           <Pressable onPress={() => setTracking(true)}>
             <Text style={styles.textStyle}>START</Text>
           </Pressable>
           </TouchableOpacity>
 
-          <View style = {styles.div}></View>
+          <View style = {styles.div3}></View>
 
           <TouchableOpacity style ={styles.startbutton}>
           <Pressable onPress={() => setTracking(false)}>
             <Text style={styles.textStyle}>STOP</Text>
           </Pressable>
           </TouchableOpacity>
-          <View style = {styles.div}></View>
+          <View style = {styles.div3}></View>
           
         </View>
       );

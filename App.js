@@ -1,6 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, SafeAreaView, ScrollView,  } from 'react-native';
+
+import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, SafeAreaView, ScrollView, Image } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown'
+import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, Image } from 'react-native';
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, child, get } from "firebase/database";
 import firebaseConfig from "./firebase.config";
@@ -13,6 +15,13 @@ import { useEffect, useState, useRef, createContext, useContext } from "react";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/core';
 import styles from './styles/default.js';
+
+import run from './assets/run.png';
+import bicycle from './assets/bicycle.png';
+import bus from './assets/bus.png';
+import train from './assets/train.png';
+import car from './assets/car.png';
+import credits from './assets/credits.png';
 import * as TaskManager from "expo-task-manager"
 import * as Location from "expo-location"
 
@@ -91,6 +100,8 @@ const App = () => {
     const d = R * c;
     return(d);
   }
+
+  const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main App page.
 
   //Checks if user movement exceeds the threshold. Needs to be updated with GPS.
   function checkMovement() {
@@ -263,6 +274,7 @@ const App = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
+    const [modalVisible, setModalVisible] = useState(true); //setting up the modal to appear before the main App page.
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -281,6 +293,7 @@ const App = () => {
             console.log("Registered with:", user.email);
         }) 
         .catch(error => alert(error.message));
+        
     }
 
     const handleLogin = () => {
@@ -290,37 +303,127 @@ const App = () => {
         }) 
         .catch(error => alert(error.message));
     }
+
+    const handleSignOut = () => {
+      signOut(auth).then( () => {
+        navigation.replace("Login")
+      })
+      .catch(error => alert(error.message));
+    };
+
     return(
-      <KeyboardAvoidingView behaviour="padding">
-          <View>
+      <View style = {styles.container}>
+          <View style = {styles.bigcontainer}>
+            <View style = {styles.div1}></View>
               <TextInput
                   placeholder="Email"
                   value={email}
                   onChangeText={text => setEmail(text)}
-                  style={styles.input}
+                  style={styles.welcomeInput}
               />
               <TextInput
                   placeholder="Password"
                   value={password}
                   onChangeText={text => setPassword(text)}
-                  style={styles.input}
+                  style={styles.welcomeInput}
                   secureTextEntry
               />
+              
+              <TouchableOpacity
+                  onPress={() => handleLogin()} 
+                  style = {styles.button}
+              >
+                  <Text style = {styles.textStyle}>Login</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+              // on press, set modal to visible and handle sign in
+                  onPress={() => setModalVisible(!modalVisible)}  
+
+                  style = {styles.button}
+              >
+                  <Text style = {styles.textStyle}>Register</Text>
+              </TouchableOpacity>
           </View>
 
-          <View>
-              <TouchableOpacity
-                  onPress={handleLogin}
-              >
-                  <Text>Login</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                  onPress={handleSignUp}
-              >
-                  <Text>Register</Text>
-              </TouchableOpacity>
+          <View style = {styles.container}>
+              
+              <View style = {styles.div3}></View>
+
+              <Text style = {styles.creditText}>
+                Made by Cameron Brown, Kai York Neo, Cameron Nguyen, Jonas Jixiao Wang and Cameron Roth.
+              </Text>
           </View>
-      </KeyboardAvoidingView>
+
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={!modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
+            }}
+          >
+            <View style={styles.container}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>
+                    Welcome to the Human Movement Mapping Trial!
+                    It appears this is your first time logging into the application.
+                    To enter the app, please confirm your email and password, and enter your age, weight and gender identity.
+                    If you clicked register by mistake, click cancel.
+                    </Text>
+                  
+                  <TextInput
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={text => setEmail(text)}
+                  style={styles.welcomeInput}
+                  />
+                  <TextInput
+                      placeholder="Password"
+                      value={password}
+                      onChangeText={text => setPassword(text)}
+                      style={styles.welcomeInput}
+                      secureTextEntry
+                  />
+                  
+                  <TextInput
+                  placeholder="Age"
+                  style={styles.welcomeInput}
+                  keyboardType = 'numeric'
+                  />
+
+                  <TextInput
+                  placeholder="Weight (in KG)"
+                  style={styles.welcomeInput}
+                  keyboardType = 'numeric'
+                  />
+
+                  <TextInput
+                  placeholder="Gender"
+                  style={styles.welcomeInput}
+                  />
+
+                <TouchableOpacity
+                  style={styles.startbutton}
+                  // On press, change the value of modalVisible
+                  onPress={() => handleSignUp()}
+                >
+                  <Text style={styles.textStyle}>CONFIRM</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.redbutton}
+                  // on press, handle sign up and change visible to false
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                  }}
+                >
+                  <Text style={styles.textStyle}>CANCEL</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+      </View>
+      
     )
   };
 
@@ -334,16 +437,25 @@ const App = () => {
     };
 
     return (
-      <KeyboardAvoidingView behaviour="padding">
           <View style={styles.container}>
+            <View style={styles.div3}></View>
+            <Image source={train} style = {{width:100, height: 100}}></Image>
+            <View style={styles.div1}></View>
+            <TouchableOpacity
+                  onPress={() => alert('Set up profile info under here')}
+                  style={styles.button}
+              >
+                  <Text style={styles.textStyle}>User Info</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                   onPress={handleSignOut}
                   style={styles.button}
               >
-                  <Text style={styles.button}>Logout</Text>
+                  <Text style={styles.textStyle}>Logout</Text>
               </TouchableOpacity>
+              
+              <View style={styles.div3}></View>
           </View>
-      </KeyboardAvoidingView>
     )
   }
 
@@ -463,20 +575,18 @@ const App = () => {
             </Text>
           </View>
           <View style = {styles.div}></View>
+
           <TouchableOpacity style ={styles.startbutton}>
           <Pressable onPress={() => setTracking(true)}>
             <Text style={styles.textStyle}>START</Text>
           </Pressable>
           </TouchableOpacity>
-  
-          <View style = {styles.div}></View>
-  
-          <TouchableOpacity style ={styles.startbutton}>
+          <TouchableOpacity style ={styles.redbutton}>
           <Pressable onPress={() => setTracking(false)}>
             <Text style={styles.textStyle}>STOP</Text>
           </Pressable>
           </TouchableOpacity>
-          <View style = {styles.div}></View>
+          <View style = {styles.div3}></View>
           
         </View>
       );
@@ -634,19 +744,23 @@ const App = () => {
   
       return (
           <View style={{alignItems:'center', justifyContent:'center', flex:1}}>
-              <View style = {styles.div}></View>
+            
+              <View style = {styles.div3}></View>
+              <Image source={run} style = {{width:100, height: 100}}></Image>
+              <View style = {styles.div1}></View>
               <Text>Home Screen</Text>
               <TouchableOpacity //Button that, when clicked, navigates to the AutoLog screen.
                   onPress={() => navigation.navigate('AutoLog')}
                   style={styles.button}>
-                  <Text style={{ fontSize: 20, textAlign: 'center', color:'#fff'}}>Start Automatic tracking</Text>
+                  <Text style={styles.textStyle}>Start Automatic tracking</Text>
               </TouchableOpacity>
               <TouchableOpacity //Button that, when clicked, navigates to the ManualLog screen.
                   onPress={() => navigation.navigate('ManualLog')}
                   style={styles.button}>
-                  <Text style={{ fontSize: 20, color: '#fff' }}>Manual Log</Text>
+                  <Text style={styles.textStyle}>Manual Log</Text>
               </TouchableOpacity>
-              <View style = {styles.div}></View>
+              
+              <View style = {styles.div3}></View>
           </View>
       )
     };
@@ -709,49 +823,50 @@ const App = () => {
   return (
     <NavigationContainer>
       <View>
-      <Modal animationType='slide' visible={hasMoved && tracking}>
-        <View>
-          <View>
-            <Text>Please fill out your reason for moving:</Text>
-            <TextInput
-              value={movement}
-              placeholder="Reason for Movement"
-              onChangeText={(movement) => setMovement(movement)}
-            ></TextInput>
-            <Button title="Send Data!" 
-            onPress={() => {
-              sethasMoved(false);
-              reasonForMovement(user.uid, movement, current_coordinates);
-              }}></Button>
-            <Button title="I didn't move!" onPress={() => sethasMoved(false)}></Button>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal animationType='slide' visible={hasStopped && tracking}>
-        <View>
-          <View>
-            <Text>Please fill out where you have stopped:</Text>
-            <TextInput
-              value={location}
-              placeholder="Where you have stopped"
-              onChangeText={(location) => setLocation(location)}
-            ></TextInput>
-            <TextInput
-              value={movement_method}
-              placeholder="How you moved here - e.g. bus, car"
-              onChangeText={(movement_method) => setMovement_method(movement_method)}
+        <Modal animationType='slide' visible={hasMoved}>
+            <View style = {styles.container}>
+              <View style = {styles.div1}></View>
+              <Text style = {styles.h1}>Please fill out your reason for moving:</Text>
+              <View style = {styles.div1}></View>
+              <TextInput
+                value={movement}
+                placeholder="Reason for Movement"
+                onChangeText={(movement) => setMovement(movement)}
               ></TextInput>
-            <Button title="Send Data!" 
-            onPress={() => {
-              sethasStopped(false);
-              writeLocationData(user.uid, location, current_coordinates);
-              writeMovementData(user.uid, last_loc, location, 10, 20, movement_method)
-              }}></Button>
-            <Button title="I didn't stop!" onPress={() => sethasStopped(false)}></Button>
-          </View>
-        </View>
-      </Modal>
+              <TouchableOpacity style = {styles.button} 
+              onPress={() => {
+                sethasMoved(false);
+                reasonForMovement(UserId, movement, current_coordinates);
+                }}><Text style = {styles.textStyle}>Send data!</Text></TouchableOpacity>
+              <TouchableOpacity style = {styles.button} onPress={() => sethasMoved(false)}><Text style = {styles.textStyle}>I didn't move!</Text></TouchableOpacity>
+              <View style = {styles.div1}></View> 
+            </View>
+          </Modal>
+
+          <Modal animationType='slide' visible={hasStopped}>
+            <View style = {styles.container}>
+              <View style = {styles.div3}></View>
+              <Text style = {styles.h1}>Please fill out where you have stopped:</Text>
+              <TextInput
+                value={location}
+                placeholder="Where you have stopped"
+                onChangeText={(location) => setLocation(location)}
+              ></TextInput>
+              <TextInput
+                value={movement_method}
+                placeholder="How you moved here - e.g. bus, car"
+                onChangeText={(movement_method) => setMovement_method(movement_method)}
+                ></TextInput>
+              <TouchableOpacity style = {styles.button}
+              onPress={() => {
+                sethasStopped(false);
+                writeLocationData(UserId, location, current_coordinates);
+                writeMovementData(UserId, last_loc, location, 10, 20, movement_method)
+                }}><Text style = {styles.textStyle}>Send Data!</Text></TouchableOpacity>
+              <TouchableOpacity style = {styles.button} onPress={() => sethasStopped(false)}><Text style = {styles.textStyle}>I didn't stop!</Text></TouchableOpacity>
+              <View style = {styles.div1}></View>
+            </View>
+          </Modal>
 
       </View>
       <Stack.Navigator initialRouteName="Login">
