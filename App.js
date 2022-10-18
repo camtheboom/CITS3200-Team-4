@@ -1,8 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 
 import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, SafeAreaView, ScrollView, Image } from 'react-native';
-import SelectDropdown from 'react-native-select-dropdown'
-import { StyleSheet, Text, View, Button, Alert, Modal , TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, Image } from 'react-native';
+import SelectDropdown from 'react-native-select-dropdown';
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, child, get } from "firebase/database";
 import firebaseConfig from "./firebase.config";
