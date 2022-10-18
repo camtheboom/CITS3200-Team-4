@@ -793,7 +793,7 @@ const App = () => {
               <View style = {styles.div1}></View>
               <Text style = {styles.h1}>Please fill out your reason for moving:</Text>
               <View style = {styles.div1}></View>
-              <TextInput
+              <TextInput style = {styles.welcomeInput}
                 value={movement}
                 placeholder="Reason for Movement"
                 onChangeText={(movement) => setMovement(movement)}
@@ -816,17 +816,17 @@ const App = () => {
             <View style = {styles.container}>
               <View style = {styles.div3}></View>
               <Text style = {styles.h1}>Please fill out where you have stopped:</Text>
-              <TextInput
+              <TextInput style = {styles.welcomeInput}
                 value={startLocation}
                 placeholder="Where you started from"
                 onChangeText={(startLocation) => setStartLocation(startLocation)}
               ></TextInput>
-              <TextInput
+              <TextInput style = {styles.welcomeInput}
                 value={location}
                 placeholder="Where you have stopped"
                 onChangeText={(location) => setLocation(location)}
               ></TextInput>
-              <TextInput
+              <TextInput style = {styles.welcomeInput}
                 value={movement_method}
                 placeholder="How you moved here - e.g. bus, car"
                 onChangeText={(movement_method) => setMovement_method(movement_method)}
