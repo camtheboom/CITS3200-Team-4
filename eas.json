@@ -1,0 +1,19 @@
+{
+    "build": {
+      "HMM": {
+        "android": {
+          "buildType": "apk"
+        }
+      },
+      "HMM2": {
+        "android": {
+          "gradleCommand": ":app:assembleRelease"
+        }
+      },
+      "HMM3": {
+        "developmentClient": true
+      },
+      "production": {}
+    }
+  }
+  

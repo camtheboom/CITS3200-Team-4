@@ -1,7 +1,9 @@
 {
   "expo": {
     "packagerOpts": {
-      "sourceExts": ["cjs"]
+      "sourceExts": [
+        "cjs"
+      ]
     },
     "name": "HMM",
     "slug": "HMM",
@@ -27,10 +29,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.camfroth.HMM"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6e3e9122-6fc8-4d78-9946-8e9face0c802"
+      }
     }
   }
 }
